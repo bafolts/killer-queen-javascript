@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Killer Queen Javascript</title>
+        <link rel="stylesheet" href="css/index.css"></link>
+        <script type="text/javascript" src="js/index.js"></script>
+    </head>
+    <body>
+        <div class="stage">
+            <!-- Walls -->
+            <div class="wall" style="top:0px;left:0px;height:370px"></div>
+            <div class="wall" style="top:0px;right:0px;height:370px"></div>
+            <div class="wall" style="top;0px;width:36px;left:782px;height:185px"></div>
+
+            <!-- Platforms -->
+            <div class="platform" style="width:80px;left:18px;top:167px"></div>
+            <div class="platform" style="width:80px;left:18px;top:352px"></div>
+            <div class="platform" style="width:80px;right:18px;top:167px"></div>
+            <div class="platform" style="width:80px;right:18px;top:352px"></div>
+            <div class="platform" style="width:430px;left:585px;top:167px"></div>
+            <div class="platform" style="width:115px;left:280px;top:167px"></div>
+            <div class="platform" style="width:115px;right:280px;top:167px"></div>
+            <div class="platform" style="width:50px;top:260px;left:164px"></div>
+            <div class="platform" style="width:50px;top:260px;left:465px"></div>
+            <div class="platform" style="width:50px;top:260px;right:164px"></div>
+            <div class="platform" style="width:50px;top:260px;right:465px"></div>
+            <div class="platform" style="width:115px;left:280px;top:352px"></div>
+            <div class="platform" style="width:115px;right:280px;top:352px"></div> 
+            <div class="platform" style="width:80px;left:585px;top:352px"></div>
+            <div class="platform" style="width:80px;right:585px;top:352px"></div>
+            <div class="platform" style="width:1600px;left:0px;bottom:0px"></div>
+            <div class="platform" style="width:98px;left:0px;top:537px"></div>
+            <div class="platform" style="width:98px;right:0px;top:537px"></div>
+            <div class="platform" style="width:98px;left:0px;top:722px"></div>
+            <div class="platform" style="width:98px;right:0px;top:722px"></div>
+            <div class="platform" style="width:430px;top:722px;left:585px"></div>
+            <div class="platform" style="width:355px;top:450px;left:164px"></div>
+            <div class="platform" style="width:355px;top:450px;right:164px"></div>
+            <div class="platform" style="width:110px;top:450px;left:745px"></div>
+            <div class="platform" style="width:110px;top:630px;left:745px"></div>
+            <div class="platform" style="width:110px;top:630px;left:409px"></div>
+            <div class="platform" style="width:110px;top:630px;right:409px"></div>
+            <div class="platform" style="width:70px;top:630px;left:164px"></div>
+            <div class="platform" style="width:70px;top:630px;right:164px"></div>
+            <div class="platform" style="width:50px;top:722px;right:295px"></div>
+            <div class="platform" style="width:50px;top:722px;left:295px"></div>
+            <div class="platform" style="width:90px;right:585px;top:537px"></div>
+            <div class="platform" style="width:90px;left:585px;top:537px"></div>
+
+            <!-- Snail -->
+            <div class="snail" style="left:750px;top:782px" id="snail"></div>
+
+            <!-- Bear -->
+            <div class="bear" style="left:700px;top:127px" id="bear1"></div>
+            <div class="bear" style="right:700px;top:127px" id="bear2"></div>
+
+            <!-- Balls -->
+            <div class="ball" style="left:793px;top:706px"></div>
+            <div class="ball" style="left:776px;top:706px"></div>
+            <div class="ball" style="left:810px;top:706px"></div>
+            <div class="ball" style="left:803px;top:690px"></div>
+            <div class="ball" style="left:785px;top:690px"></div>
+            <div class="ball" style="left:793px;top:674px"></div>
+
+            <div class="ball" style="left:793px;top:614px"></div>
+            <div class="ball" style="left:776px;top:614px"></div>
+            <div class="ball" style="left:810px;top:614px"></div>
+            <div class="ball" style="left:803px;top:598px"></div>
+            <div class="ball" style="left:785px;top:598px"></div>
+            <div class="ball" style="left:793px;top:582px"></div>
+
+            <div class="ball" style="left:961px;top:521px"></div>
+            <div class="ball" style="left:944px;top:521px"></div>
+            <div class="ball" style="left:978px;top:521px"></div>
+            <div class="ball" style="left:971px;top:505px"></div>
+            <div class="ball" style="left:951px;top:505px"></div>
+            <div class="ball" style="left:961px;top:489px"></div>
+
+            <div class="ball" style="right:961px;top:521px"></div>
+            <div class="ball" style="right:944px;top:521px"></div>
+            <div class="ball" style="right:978px;top:521px"></div>
+            <div class="ball" style="right:971px;top:505px"></div>
+            <div class="ball" style="right:951px;top:505px"></div>
+            <div class="ball" style="right:961px;top:489px"></div>
+
+            <div class="ball" style="left:190px;top:614px"></div>
+            <div class="ball" style="left:173px;top:614px"></div>
+            <div class="ball" style="left:207px;top:614px"></div>
+            <div class="ball" style="left:200px;top:598px"></div>
+            <div class="ball" style="left:180px;top:598px"></div>
+            <div class="ball" style="left:190px;top:582px"></div>
+
+            <div class="ball" style="right:190px;top:614px"></div>
+            <div class="ball" style="right:173px;top:614px"></div>
+            <div class="ball" style="right:207px;top:614px"></div>
+            <div class="ball" style="right:200px;top:598px"></div>
+            <div class="ball" style="right:180px;top:598px"></div>
+            <div class="ball" style="right:190px;top:582px"></div>
+
+            <div class="ball" style="left:308px;top:816px"></div>
+            <div class="ball" style="left:325px;top:816px"></div>
+            <div class="ball" style="left:291px;top:816px"></div>
+            <div class="ball" style="left:316px;top:800px"></div>
+            <div class="ball" style="left:299px;top:800px"></div>
+            <div class="ball" style="left:308px;top:784px"></div>
+
+            <div class="ball" style="right:308px;top:816px"></div>
+            <div class="ball" style="right:325px;top:816px"></div>
+            <div class="ball" style="right:291px;top:816px"></div>
+            <div class="ball" style="right:316px;top:800px"></div>
+            <div class="ball" style="right:299px;top:800px"></div>
+            <div class="ball" style="right:308px;top:784px"></div>
+
+            <!-- Ball Holder -->
+            <div class="ball-holder" style="left:730px;top:60px"></div>
+            <div class="ball-holder" style="left:730px;top:40px"></div>
+            <div class="ball-holder" style="left:710px;top:70px"></div>
+            <div class="ball-holder" style="left:710px;top:50px"></div>
+            <div class="ball-holder" style="left:710px;top:30px"></div>
+            <div class="ball-holder" style="left:690px;top:60px"></div>
+            <div class="ball-holder" style="left:690px;top:40px"></div>
+            <div class="ball-holder" style="left:670px;top:70px"></div>
+            <div class="ball-holder" style="left:670px;top:50px"></div>
+            <div class="ball-holder" style="left:670px;top:30px"></div>
+            <div class="ball-holder" style="left:650px;top:60px"></div>
+            <div class="ball-holder" style="left:650px;top:40px"></div>
+            <div class="ball-holder" style="right:730px;top:60px"></div>
+            <div class="ball-holder" style="right:730px;top:40px"></div>
+            <div class="ball-holder" style="right:710px;top:70px"></div>
+            <div class="ball-holder" style="right:710px;top:50px"></div>
+            <div class="ball-holder" style="right:710px;top:30px"></div>
+            <div class="ball-holder" style="right:690px;top:60px"></div>
+            <div class="ball-holder" style="right:690px;top:40px"></div>
+            <div class="ball-holder" style="right:670px;top:70px"></div>
+            <div class="ball-holder" style="right:670px;top:50px"></div>
+            <div class="ball-holder" style="right:670px;top:30px"></div>
+            <div class="ball-holder" style="right:650px;top:60px"></div>
+            <div class="ball-holder" style="right:650px;top:40px"></div>
+        </div>
+    </body>
+</html>

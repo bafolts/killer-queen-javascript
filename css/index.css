@@ -1,0 +1,56 @@
+.platform {
+    position: absolute;
+    height: 18px;
+    background-color: green;
+}
+.wall {
+    position: absolute;
+    width: 18px;
+    background-color: green;
+}
+.bear {
+    width: 30px;
+    height: 40px;
+    position: absolute;
+}
+
+#bear1 {
+    background-image: url(../images/guy.png);
+}
+
+#bear2 {
+    background-color: gold;
+}
+
+.ball {
+    background-color: purple;
+    height: 14px;
+    width: 14px;
+    position: absolute;
+    border: 1px solid purple;
+    border-radius: 15px;
+}
+.ball-holder {
+    background-color: black;
+    height: 15px;
+    width: 15px;
+    position: absolute;
+    border-radius: 15px;
+}
+div.ball-holder.occupied {
+    background-color: purple;
+    border: 1px solid black;
+}
+.stage {
+    width: 1600px;
+    height: 850px;
+    border: 1px solid black;
+    position: relative;
+    overflow: hidden;
+}
+.snail {
+    width: 100px;
+    height: 50px;
+    position: absolute;
+    background-color: silver;
+}
