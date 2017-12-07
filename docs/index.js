@@ -1,4 +1,9 @@
 
+function Gate(element) {
+    this.element = element;
+    this.side;
+}
+
 function BallHolder(element) {
     this.element = element;
     this.occupied = false;
@@ -12,11 +17,10 @@ BallHolder.prototype.occupy = function(ball) {
 }
 
 function intersects(item1, item2) {
-    return ((item1.offsetTop >= item2.offsetTop && item1.offsetTop <= item2.offsetTop + item2.offsetHeight) ||
-           (item1.offsetTop + item1.offsetHeight >= item2.offsetTop && item1.offsetTop + item1.offsetHeight <= item2.offsetTop + item2.offsetHeight)
-           ) && (
-            (item1.offsetLeft >= item2.offsetLeft && item1.offsetLeft <= item2.offsetLeft + item2.offsetWidth) ||
-            (item1.offsetLeft + item1.offsetWidth >= item2.offsetLeft && item1.offsetLeft + item1.offsetWidth <= item2.offsetLeft + item2.offsetWidth));
+    return !((item1.offsetLeft + item1.offsetWidth) < item2.offsetLeft ||
+               item1.offsetLeft > (item2.offsetLeft + item2.offsetWidth) ||
+               (item1.offsetTop + item1.offsetHeight) < item2.offsetTop ||
+               item1.offsetTop > (item2.offsetTop + item2.offsetHeight));
 }
 
 function Ball(element) {

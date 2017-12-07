@@ -2,18 +2,25 @@
     position: absolute;
     height: 18px;
     background-color: green;
+    background-image: url(ground.png);
 }
 .wall {
     position: absolute;
     width: 18px;
-    background-color: green;
+    background-color: brown;
+    background-image: url(platform.png);
 }
 .bear {
     width: 30px;
     height: 40px;
     position: absolute;
 }
-
+.gate {
+    width: 60px;
+    height: 90px;
+    border: 1px solid black;
+    position: absolute;
+}
 #bear1 {
     background-color: blue;
 }
@@ -47,12 +54,15 @@ div.ball-holder.occupied {
     border: 1px solid black;
     position: relative;
     overflow: hidden;
+    background: rgba(179,220,237,1);
+    background: linear-gradient(to bottom, rgba(41,184,229,1) 0%, rgba(188,224,238,1) 100%);
 }
 .snail {
-    width: 100px;
-    height: 50px;
+    width: 120px;
+    height: 105px;
     position: absolute;
-    background-color: silver;
+    background-image: url(snail.png);
+    background-position: -14px -200px;
 }
 .goal {
     width: 10px;
