@@ -36,29 +36,21 @@ function Goal(element, color) {
 function Snail(element, goal1, goal2) {
     this.element = element;
     this.occupied = false;
-    this.moving;
+    //  this.moving;
     this.goal1 = goal1;
     this.goal2 = goal2;
 }
 
 Snail.prototype.checkForWin = function() {
     if (this.element.offsetLeft + this.element.offsetWidth < this.goal1.element.offsetLeft + this.goal1.element.offsetWidth) {
-        clearInterval(this.moving);
         alert("BLUE WIN");
     } else if (this.element.offsetLeft > this.goal2.element.offsetLeft) {
-        clearInterval(this.moving);
         alert("GOLD WIN");
     }
 }
 
 Snail.prototype.occupy = function(bear, color) {
     this.occupied = bear;
-    var self = this;
-    var move = color === "blue" ? -1 : 1;
-    this.moving = setInterval(function() {
-        self.element.style.left = self.element.offsetLeft + move + "px";
-        self.checkForWin();
-    }, 100);
 }
 
 Snail.prototype.unoccupy = function() {
@@ -79,6 +71,7 @@ function Bear(id, color, leftCode, rightCode, jumpCode) {
     var jumpTimeout;
 
     var ballInPocession;
+    var leftSnail = (new Date()).getTime();
 
     function checkForWin() {
         var goldWin = true;
@@ -109,85 +102,94 @@ function Bear(id, color, leftCode, rightCode, jumpCode) {
         }
     }
 
-    var game = setInterval(function() {
+    var bearOnSnail = setInterval(function() {
 
-        if (snail.occupied === false && intersects(snail.element, bear1)) {
+        if ((new Date()).getTime() - leftSnail > 2000 && snail.occupied === false && intersects(snail.element, bear1)) {
             snail.occupy(bear1, color);
+        } else if (snail.occupied === bear1) {
+            if (dx < 0) {
+                snail.element.style.left = snail.element.offsetLeft - 1 + "px";
+            } else if (dx > 0) {
+                snail.element.style.left = snail.element.offsetLeft + 1 + "px";
+            }
+            snail.checkForWin();
+            bear1.style.left = snail.element.offsetLeft + (snail.element.offsetWidth / 2) - (bear1.offsetWidth / 2) + "px";
         }
 
-        if (snail.occupied !== bear1) {
+    }, 100);
 
-        if (dx.length > 0) {
-            var currentLeft = bear1.offsetLeft;
-            var change = dx[dx.length - 1];
-            if (change > 0) {
-                var closestWall;
-                for (var i = 0, length = walls.length; i < length; i++) {
-                    if (walls[i].offsetTop < bear1.offsetTop && walls[i].offsetTop + walls[i].offsetHeight > bear1.offsetTop) {
-                        if (walls[i].offsetLeft >= bear1.offsetLeft + bear1.offsetWidth) {
-                            if (closestWall === undefined || walls[i].offsetLeft < closestWall.offsetLeft) {
-                                closestWall = walls[i];
+    var game = setInterval(function() {
+
+        if (snail.occupied !== bear1) {
+            if (dx.length > 0) {
+                var currentLeft = bear1.offsetLeft;
+                var change = dx[dx.length - 1];
+                if (change > 0) {
+                    var closestWall;
+                    for (var i = 0, length = walls.length; i < length; i++) {
+                        if (walls[i].offsetTop < bear1.offsetTop && walls[i].offsetTop + walls[i].offsetHeight > bear1.offsetTop) {
+                            if (walls[i].offsetLeft >= bear1.offsetLeft + bear1.offsetWidth) {
+                                if (closestWall === undefined || walls[i].offsetLeft < closestWall.offsetLeft) {
+                                    closestWall = walls[i];
+                                }
                             }
                         }
                     }
-                }
-                for (var i = 0, length = platforms.length; i < length; i++) {
-                    if (
-                        (platforms[i].offsetTop >= bear1.offsetTop && platforms[i].offsetTop <= bear1.offsetTop + bear1.offsetHeight) ||
-                        (platforms[i].offsetTop + platforms[i].offsetHeight >= bear1.offsetTop && platforms[i].offsetTop + platforms[i].offsetHeight <= bear1.offsetTop + bear1.offsetHeight)) {
-                            if (platforms[i].offsetLeft >= bear1.offsetLeft + bear1.offsetWidth) {
-                                if (closestWall === undefined || platforms[i].offsetLeft < closestWall.offsetLeft) {
-                                    closestWall = platforms[i];
+                    for (var i = 0, length = platforms.length; i < length; i++) {
+                        if (
+                            (platforms[i].offsetTop >= bear1.offsetTop && platforms[i].offsetTop <= bear1.offsetTop + bear1.offsetHeight) ||
+                            (platforms[i].offsetTop + platforms[i].offsetHeight >= bear1.offsetTop && platforms[i].offsetTop + platforms[i].offsetHeight <= bear1.offsetTop + bear1.offsetHeight)) {
+                                if (platforms[i].offsetLeft >= bear1.offsetLeft + bear1.offsetWidth) {
+                                    if (closestWall === undefined || platforms[i].offsetLeft < closestWall.offsetLeft) {
+                                        closestWall = platforms[i];
+                                    }
                                 }
-                            }
+                        }
                     }
-                }
-                if (closestWall !== undefined && bear1.offsetLeft + bear1.offsetWidth === closestWall.offsetLeft) {
-                } else if (closestWall !== undefined && bear1.offsetLeft + bear1.offsetWidth + change >= closestWall.offsetLeft) {
-                    bear1.style.left = (closestWall.offsetLeft - bear1.offsetWidth) + "px";
-                } else {
-                    if (bear1.offsetLeft + bear1.offsetWidth >= 1600) {
-                        bear1.style.left = 0 + change + "px";
+                    if (closestWall !== undefined && bear1.offsetLeft + bear1.offsetWidth === closestWall.offsetLeft) {
+                    } else if (closestWall !== undefined && bear1.offsetLeft + bear1.offsetWidth + change >= closestWall.offsetLeft) {
+                        bear1.style.left = (closestWall.offsetLeft - bear1.offsetWidth) + "px";
                     } else {
-                        bear1.style.left = bear1.offsetLeft + change + "px";
+                        if (bear1.offsetLeft + bear1.offsetWidth >= 1600) {
+                            bear1.style.left = 0 + change + "px";
+                        } else {
+                            bear1.style.left = bear1.offsetLeft + change + "px";
+                        }
                     }
-                }
-            } else {
-                var closestWall;
-                for (var i = 0, length = walls.length; i < length; i++) {
-                    if (walls[i].offsetTop < bear1.offsetTop && walls[i].offsetTop + walls[i].offsetHeight > bear1.offsetTop) {
-                        if (walls[i].offsetLeft + walls[i].offsetWidth <= bear1.offsetLeft) {
-                            if (closestWall === undefined || walls[i].offsetLeft > closestWall.offsetLeft) {
-                                closestWall = walls[i];
+                } else {
+                    var closestWall;
+                    for (var i = 0, length = walls.length; i < length; i++) {
+                        if (walls[i].offsetTop < bear1.offsetTop && walls[i].offsetTop + walls[i].offsetHeight > bear1.offsetTop) {
+                            if (walls[i].offsetLeft + walls[i].offsetWidth <= bear1.offsetLeft) {
+                                if (closestWall === undefined || walls[i].offsetLeft > closestWall.offsetLeft) {
+                                    closestWall = walls[i];
+                                }
                             }
                         }
                     }
-                }
-                for (var i = 0, length = platforms.length; i < length; i++) {
-                    if (
-                        (platforms[i].offsetTop >= bear1.offsetTop && platforms[i].offsetTop <= bear1.offsetTop + bear1.offsetHeight) ||
-                        (platforms[i].offsetTop + platforms[i].offsetHeight >= bear1.offsetTop && platforms[i].offsetTop + platforms[i].offsetHeight <= bear1.offsetTop + bear1.offsetHeight)) {
-                            if (platforms[i].offsetLeft + platforms[i].offsetWidth <= bear1.offsetLeft) {
-                                if (closestWall === undefined || platforms[i].offsetLeft + platforms[i].offsetWidth > closestWall.offsetLeft + closestWall.offsetWidth) {
-                                    closestWall = platforms[i];
+                    for (var i = 0, length = platforms.length; i < length; i++) {
+                        if (
+                            (platforms[i].offsetTop >= bear1.offsetTop && platforms[i].offsetTop <= bear1.offsetTop + bear1.offsetHeight) ||
+                            (platforms[i].offsetTop + platforms[i].offsetHeight >= bear1.offsetTop && platforms[i].offsetTop + platforms[i].offsetHeight <= bear1.offsetTop + bear1.offsetHeight)) {
+                                if (platforms[i].offsetLeft + platforms[i].offsetWidth <= bear1.offsetLeft) {
+                                    if (closestWall === undefined || platforms[i].offsetLeft + platforms[i].offsetWidth > closestWall.offsetLeft + closestWall.offsetWidth) {
+                                        closestWall = platforms[i];
+                                    }
                                 }
-                            }
+                        }
                     }
-                }
-                if (closestWall !== undefined && bear1.offsetLeft === closestWall.offsetLeft + closestWall.offsetWidth) {
-                } else if (closestWall !== undefined && bear1.offsetLeft + change <= closestWall.offsetLeft + closestWall.offsetWidth) {
-                    bear1.style.left = closestWall.offsetLeft + closestWall.offsetWidth + "px";
-                } else {
-                    if (bear1.offsetLeft + change < 0) {
-                        bear1.style.left = (1600 - bear1.offsetLeft) + change + "px";
+                    if (closestWall !== undefined && bear1.offsetLeft === closestWall.offsetLeft + closestWall.offsetWidth) {
+                    } else if (closestWall !== undefined && bear1.offsetLeft + change <= closestWall.offsetLeft + closestWall.offsetWidth) {
+                        bear1.style.left = closestWall.offsetLeft + closestWall.offsetWidth + "px";
                     } else {
-                        bear1.style.left = bear1.offsetLeft + change + "px";
+                        if (bear1.offsetLeft + change < 0) {
+                            bear1.style.left = (1600 - bear1.offsetLeft) + change + "px";
+                        } else {
+                            bear1.style.left = bear1.offsetLeft + change + "px";
+                        }
                     }
                 }
             }
-        }
-        } else {
-            bear1.style.left = snail.element.offsetLeft + (snail.element.offsetWidth / 2) - (bear1.offsetWidth / 2) + "px";
         }
 
         if (dy > 0) {
@@ -291,6 +293,7 @@ function Bear(id, color, leftCode, rightCode, jumpCode) {
                 if (platforms[i].offsetLeft < bear1.offsetLeft + bear1.offsetWidth && platforms[i].offsetLeft + platforms[i].offsetWidth > bear1.offsetLeft) {
                     if (platforms[i].offsetTop === bear1.offsetTop + bear1.offsetHeight) {
                         if (snail.occupied === bear1) {
+                            leftSnail = (new Date()).getTime();
                             snail.unoccupy();
                         }
                         jumpStart = true;
