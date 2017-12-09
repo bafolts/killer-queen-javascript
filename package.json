@@ -1,0 +1,26 @@
+{
+  "name": "killer-queen-javascript",
+  "version": "1.0.0",
+  "description": "Killer Queen Javascript",
+  "main": "index.js",
+  "directories": {
+    "doc": "docs"
+  },
+  "scripts": {
+    "compile": "tsc --outFile docs/index.js src/index.ts",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/bafolts/killer-queen-javascript.git"
+  },
+  "author": "Brian Folts <brian.folts@gmail.com>",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/bafolts/killer-queen-javascript/issues"
+  },
+  "homepage": "https://github.com/bafolts/killer-queen-javascript#readme",
+  "devDependencies": {
+    "typescript": "^2.6.2"
+  }
+}

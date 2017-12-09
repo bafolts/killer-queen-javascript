@@ -62,8 +62,20 @@ div.ball-holder.occupied {
     height: 105px;
     position: absolute;
     background-image: url(snail.png);
+}
+.snail.right {
     background-position: -14px -200px;
 }
+.snail.right.again {
+    background-position: -163px -200px;
+}
+.snail.left {
+    background-position: -14px -500px;
+}
+.snail.left.again {
+    background-position: -163px -500px;
+}
+
 .goal {
     width: 10px;
     height: 100px;
