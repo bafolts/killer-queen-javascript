@@ -3,6 +3,10 @@ var Ball = /** @class */ (function () {
         this.element = element;
         this.held = false;
     }
+    Ball.prototype.removeFromPlay = function () {
+        this.element.parentNode.removeChild(this.element);
+        balls.splice(balls.indexOf(this), 1);
+    };
     return Ball;
 }());
 var BallHolder = /** @class */ (function () {
@@ -19,8 +23,10 @@ var BallHolder = /** @class */ (function () {
     return BallHolder;
 }());
 var Bear = /** @class */ (function () {
-    function Bear(id, color, leftCode, rightCode, jumpCode) {
-        var bear1 = document.getElementById(id);
+    function Bear(element, className, color, leftCode, rightCode, jumpCode) {
+        this.element = element;
+        this.className = className;
+        element.className = "bear " + className;
         var dx = [];
         var dy = 8;
         var leftDown = false;
@@ -31,7 +37,7 @@ var Bear = /** @class */ (function () {
         var leftSnail = (new Date()).getTime();
         var self = this;
         var bearOnSnail = setInterval(function () {
-            if ((new Date()).getTime() - leftSnail > 2000 && snail.occupied === undefined && intersects(snail.element, bear1)) {
+            if ((new Date()).getTime() - leftSnail > 2000 && snail.occupied === undefined && intersects(snail.element, self.element)) {
                 snail.occupy(self);
             }
             else if (snail.occupied === self) {
@@ -57,21 +63,30 @@ var Bear = /** @class */ (function () {
                     }
                 }
                 snail.checkForWin();
-                bear1.style.left = snail.element.offsetLeft + (snail.element.offsetWidth / 2) - (bear1.offsetWidth / 2) + "px";
+                self.element.style.left = snail.element.offsetLeft + (snail.element.offsetWidth / 2) - (self.element.offsetWidth / 2) + "px";
             }
         }, 100);
-        var game = setInterval(function () {
+        this.bearLoop = setInterval(function () {
             var i;
             var length;
             if (snail.occupied !== self) {
+                if (dx.length === 0) {
+                    self.animateStanding();
+                }
                 if (dx.length > 0) {
-                    var currentLeft = bear1.offsetLeft;
+                    var currentLeft = self.element.offsetLeft;
                     var change = dx[dx.length - 1];
+                    if (change > 0) {
+                        self.animateWalkRight();
+                    }
+                    else {
+                        self.animateWalkLeft();
+                    }
                     if (change > 0) {
                         var closestWall;
                         for (i = 0, length = walls.length; i < length; i++) {
-                            if (walls[i].offsetTop < bear1.offsetTop && walls[i].offsetTop + walls[i].offsetHeight > bear1.offsetTop) {
-                                if (walls[i].offsetLeft >= bear1.offsetLeft + bear1.offsetWidth) {
+                            if (walls[i].offsetTop < self.element.offsetTop && walls[i].offsetTop + walls[i].offsetHeight > self.element.offsetTop) {
+                                if (walls[i].offsetLeft >= self.element.offsetLeft + self.element.offsetWidth) {
                                     if (closestWall === undefined || walls[i].offsetLeft < closestWall.offsetLeft) {
                                         closestWall = walls[i];
                                     }
@@ -79,34 +94,34 @@ var Bear = /** @class */ (function () {
                             }
                         }
                         for (i = 0, length = platforms.length; i < length; i++) {
-                            if ((platforms[i].offsetTop >= bear1.offsetTop && platforms[i].offsetTop <= bear1.offsetTop + bear1.offsetHeight) ||
-                                (platforms[i].offsetTop + platforms[i].offsetHeight >= bear1.offsetTop && platforms[i].offsetTop + platforms[i].offsetHeight <= bear1.offsetTop + bear1.offsetHeight)) {
-                                if (platforms[i].offsetLeft >= bear1.offsetLeft + bear1.offsetWidth) {
+                            if ((platforms[i].offsetTop >= self.element.offsetTop && platforms[i].offsetTop <= self.element.offsetTop + self.element.offsetHeight) ||
+                                (platforms[i].offsetTop + platforms[i].offsetHeight >= self.element.offsetTop && platforms[i].offsetTop + platforms[i].offsetHeight <= self.element.offsetTop + self.element.offsetHeight)) {
+                                if (platforms[i].offsetLeft >= self.element.offsetLeft + self.element.offsetWidth) {
                                     if (closestWall === undefined || platforms[i].offsetLeft < closestWall.offsetLeft) {
                                         closestWall = platforms[i];
                                     }
                                 }
                             }
                         }
-                        if (closestWall !== undefined && bear1.offsetLeft + bear1.offsetWidth === closestWall.offsetLeft) {
+                        if (closestWall !== undefined && self.element.offsetLeft + self.element.offsetWidth === closestWall.offsetLeft) {
                         }
-                        else if (closestWall !== undefined && bear1.offsetLeft + bear1.offsetWidth + change >= closestWall.offsetLeft) {
-                            bear1.style.left = (closestWall.offsetLeft - bear1.offsetWidth) + "px";
+                        else if (closestWall !== undefined && self.element.offsetLeft + self.element.offsetWidth + change >= closestWall.offsetLeft) {
+                            self.element.style.left = (closestWall.offsetLeft - self.element.offsetWidth) + "px";
                         }
                         else {
-                            if (bear1.offsetLeft + bear1.offsetWidth >= 1600) {
-                                bear1.style.left = 0 + change + "px";
+                            if (self.element.offsetLeft + self.element.offsetWidth >= 1600) {
+                                self.element.style.left = 0 + change + "px";
                             }
                             else {
-                                bear1.style.left = bear1.offsetLeft + change + "px";
+                                self.element.style.left = self.element.offsetLeft + change + "px";
                             }
                         }
                     }
                     else {
                         var closestWall;
                         for (i = 0, length = walls.length; i < length; i++) {
-                            if (walls[i].offsetTop < bear1.offsetTop && walls[i].offsetTop + walls[i].offsetHeight > bear1.offsetTop) {
-                                if (walls[i].offsetLeft + walls[i].offsetWidth <= bear1.offsetLeft) {
+                            if (walls[i].offsetTop < self.element.offsetTop && walls[i].offsetTop + walls[i].offsetHeight > self.element.offsetTop) {
+                                if (walls[i].offsetLeft + walls[i].offsetWidth <= self.element.offsetLeft) {
                                     if (closestWall === undefined || walls[i].offsetLeft > closestWall.offsetLeft) {
                                         closestWall = walls[i];
                                     }
@@ -114,26 +129,26 @@ var Bear = /** @class */ (function () {
                             }
                         }
                         for (i = 0, length = platforms.length; i < length; i++) {
-                            if ((platforms[i].offsetTop >= bear1.offsetTop && platforms[i].offsetTop <= bear1.offsetTop + bear1.offsetHeight) ||
-                                (platforms[i].offsetTop + platforms[i].offsetHeight >= bear1.offsetTop && platforms[i].offsetTop + platforms[i].offsetHeight <= bear1.offsetTop + bear1.offsetHeight)) {
-                                if (platforms[i].offsetLeft + platforms[i].offsetWidth <= bear1.offsetLeft) {
+                            if ((platforms[i].offsetTop >= self.element.offsetTop && platforms[i].offsetTop <= self.element.offsetTop + self.element.offsetHeight) ||
+                                (platforms[i].offsetTop + platforms[i].offsetHeight >= self.element.offsetTop && platforms[i].offsetTop + platforms[i].offsetHeight <= self.element.offsetTop + self.element.offsetHeight)) {
+                                if (platforms[i].offsetLeft + platforms[i].offsetWidth <= self.element.offsetLeft) {
                                     if (closestWall === undefined || platforms[i].offsetLeft + platforms[i].offsetWidth > closestWall.offsetLeft + closestWall.offsetWidth) {
                                         closestWall = platforms[i];
                                     }
                                 }
                             }
                         }
-                        if (closestWall !== undefined && bear1.offsetLeft === closestWall.offsetLeft + closestWall.offsetWidth) {
+                        if (closestWall !== undefined && self.element.offsetLeft === closestWall.offsetLeft + closestWall.offsetWidth) {
                         }
-                        else if (closestWall !== undefined && bear1.offsetLeft + change <= closestWall.offsetLeft + closestWall.offsetWidth) {
-                            bear1.style.left = closestWall.offsetLeft + closestWall.offsetWidth + "px";
+                        else if (closestWall !== undefined && self.element.offsetLeft + change <= closestWall.offsetLeft + closestWall.offsetWidth) {
+                            self.element.style.left = closestWall.offsetLeft + closestWall.offsetWidth + "px";
                         }
                         else {
-                            if (bear1.offsetLeft + change < 0) {
-                                bear1.style.left = (1600 - bear1.offsetLeft) + change + "px";
+                            if (self.element.offsetLeft + change < 0) {
+                                self.element.style.left = (1600 - self.element.offsetLeft) + change + "px";
                             }
                             else {
-                                bear1.style.left = bear1.offsetLeft + change + "px";
+                                self.element.style.left = self.element.offsetLeft + change + "px";
                             }
                         }
                     }
@@ -142,52 +157,52 @@ var Bear = /** @class */ (function () {
             if (dy > 0) {
                 var closestPlatform = void 0;
                 for (i = 0, length = platforms.length; i < length; i++) {
-                    if (platforms[i].offsetLeft < bear1.offsetLeft + bear1.offsetWidth && platforms[i].offsetLeft + platforms[i].offsetWidth > bear1.offsetLeft) {
-                        if (platforms[i].offsetTop >= bear1.offsetTop + bear1.offsetHeight) {
+                    if (platforms[i].offsetLeft < self.element.offsetLeft + self.element.offsetWidth && platforms[i].offsetLeft + platforms[i].offsetWidth > self.element.offsetLeft) {
+                        if (platforms[i].offsetTop >= self.element.offsetTop + self.element.offsetHeight) {
                             if (closestPlatform === undefined || platforms[i].offsetTop < closestPlatform.offsetTop) {
                                 closestPlatform = platforms[i];
                             }
                         }
                     }
                 }
-                if (closestPlatform !== undefined && bear1.offsetTop + bear1.offsetHeight === closestPlatform.offsetTop) {
+                if (closestPlatform !== undefined && self.element.offsetTop + self.element.offsetHeight === closestPlatform.offsetTop) {
                 }
-                else if (closestPlatform !== undefined && bear1.offsetTop + bear1.offsetHeight + 8 >= closestPlatform.offsetTop) {
-                    bear1.style.top = closestPlatform.offsetTop - bear1.offsetHeight + "px";
+                else if (closestPlatform !== undefined && self.element.offsetTop + self.element.offsetHeight + 8 >= closestPlatform.offsetTop) {
+                    self.element.style.top = closestPlatform.offsetTop - self.element.offsetHeight + "px";
                 }
                 else if (closestPlatform !== undefined) {
-                    bear1.style.top = bear1.offsetTop + 8 + "px";
+                    self.element.style.top = self.element.offsetTop + 8 + "px";
                 }
             }
             else {
                 var closestPlatform = void 0;
                 for (i = 0, length = platforms.length; i < length; i++) {
-                    if (platforms[i].offsetLeft < bear1.offsetLeft + bear1.offsetWidth && platforms[i].offsetLeft + platforms[i].offsetWidth > bear1.offsetLeft) {
-                        if (platforms[i].offsetTop + platforms[i].offsetHeight <= bear1.offsetTop) {
+                    if (platforms[i].offsetLeft < self.element.offsetLeft + self.element.offsetWidth && platforms[i].offsetLeft + platforms[i].offsetWidth > self.element.offsetLeft) {
+                        if (platforms[i].offsetTop + platforms[i].offsetHeight <= self.element.offsetTop) {
                             if (closestPlatform === undefined || platforms[i].offsetTop + platforms[i].offsetHeight > closestPlatform.offsetTop + closestPlatform.offsetHeight) {
                                 closestPlatform = platforms[i];
                             }
                         }
                     }
                 }
-                if (closestPlatform !== undefined && bear1.offsetTop === closestPlatform.offsetTop + closestPlatform.offsetHeight) {
+                if (closestPlatform !== undefined && self.element.offsetTop === closestPlatform.offsetTop + closestPlatform.offsetHeight) {
                     clearTimeout(jumpTimeout);
                     dy = 8;
                 }
-                else if (closestPlatform !== undefined && bear1.offsetTop - 8 <= closestPlatform.offsetTop + closestPlatform.offsetHeight) {
-                    bear1.style.top = closestPlatform.offsetTop + closestPlatform.offsetHeight + "px";
+                else if (closestPlatform !== undefined && self.element.offsetTop - 8 <= closestPlatform.offsetTop + closestPlatform.offsetHeight) {
+                    self.element.style.top = closestPlatform.offsetTop + closestPlatform.offsetHeight + "px";
                     clearTimeout(jumpTimeout);
                     dy = 8;
                 }
                 else {
-                    bear1.style.top = bear1.offsetTop - 8 + "px";
+                    self.element.style.top = self.element.offsetTop - 8 + "px";
                 }
             }
             var touchingBall;
             if (!ballInPocession) {
                 if (snail.occupied !== self) {
                     for (i = 0, length = balls.length; i < length; i++) {
-                        if (balls[i].held === false && intersects(balls[i].element, bear1)) {
+                        if (balls[i].held === false && intersects(balls[i].element, self.element)) {
                             touchingBall = balls[i];
                             balls[i].held = true;
                             break;
@@ -200,20 +215,30 @@ var Bear = /** @class */ (function () {
                 }
             }
             else {
-                ballInPocession.element.style.top = bear1.offsetTop - ballInPocession.element.offsetHeight + "px";
-                ballInPocession.element.style.left = bear1.offsetLeft + ((bear1.offsetWidth / 2) - (ballInPocession.element.offsetWidth / 2)) + "px";
-                for (i = 0, length = ballHolders.length; i < length; i++) {
-                    if (ballHolders[i].occupied) {
-                        continue;
-                    }
-                    var ballHolder = ballHolders[i];
-                    if (intersects(ballHolder.element, ballInPocession.element)) {
-                        ballHolder.occupy(ballInPocession);
-                        self.checkForWin();
+                ballInPocession.element.style.top = self.element.offsetTop - ballInPocession.element.offsetHeight + "px";
+                ballInPocession.element.style.left = self.element.offsetLeft + ((self.element.offsetWidth / 2) - (ballInPocession.element.offsetWidth / 2)) + "px";
+                for (i = 0, length = gates.length; i < length; i++) {
+                    if (gates[i].shutting === false && intersects(self.element, gates[i].element)) {
+                        ballInPocession.removeFromPlay();
                         ballInPocession = undefined;
+                        self.changeToWarrior();
+                        gates[i].shut();
                         break;
                     }
                 }
+                if (ballInPocession !== undefined)
+                    for (i = 0, length = ballHolders.length; i < length; i++) {
+                        if (ballHolders[i].occupied) {
+                            continue;
+                        }
+                        var ballHolder = ballHolders[i];
+                        if (intersects(ballHolder.element, ballInPocession.element)) {
+                            ballHolder.occupy(ballInPocession);
+                            self.checkForWin();
+                            ballInPocession = undefined;
+                            break;
+                        }
+                    }
             }
         }, 50);
         document.addEventListener("keyup", function (e) {
@@ -243,8 +268,8 @@ var Bear = /** @class */ (function () {
             else if (jumpStart === false && e.keyCode === jumpCode) {
                 var closestPlatform;
                 for (var i = 0, length = platforms.length; i < length; i++) {
-                    if (platforms[i].offsetLeft < bear1.offsetLeft + bear1.offsetWidth && platforms[i].offsetLeft + platforms[i].offsetWidth > bear1.offsetLeft) {
-                        if (platforms[i].offsetTop === bear1.offsetTop + bear1.offsetHeight) {
+                    if (platforms[i].offsetLeft < self.element.offsetLeft + self.element.offsetWidth && platforms[i].offsetLeft + platforms[i].offsetWidth > self.element.offsetLeft) {
+                        if (platforms[i].offsetTop === self.element.offsetTop + self.element.offsetHeight) {
                             if (snail.occupied === self) {
                                 leftSnail = (new Date()).getTime();
                                 snail.unoccupy();
@@ -288,6 +313,31 @@ var Bear = /** @class */ (function () {
             return;
         }
     };
+    Bear.prototype.changeToWarrior = function () {
+        clearInterval(this.bearLoop);
+        this.element.parentNode.removeChild(this.element);
+    };
+    Bear.prototype.animateStanding = function () {
+        this.element.className = "bear " + this.className;
+    };
+    Bear.prototype.animateWalkLeft = function () {
+        var nextClass = "bear " + this.className + " left";
+        if (this.element.className === nextClass) {
+            this.element.className = nextClass + "2";
+        }
+        else {
+            this.element.className = nextClass;
+        }
+    };
+    Bear.prototype.animateWalkRight = function () {
+        var nextClass = "bear " + this.className + " right";
+        if (this.element.className === nextClass) {
+            this.element.className = nextClass + "2";
+        }
+        else {
+            this.element.className = nextClass;
+        }
+    };
     return Bear;
 }());
 var Goal = /** @class */ (function () {
@@ -300,7 +350,22 @@ var Goal = /** @class */ (function () {
 var Gate = /** @class */ (function () {
     function Gate(element) {
         this.element = element;
+        this.shutting = false;
+        var self = this;
     }
+    Gate.prototype.shut = function () {
+        var self = this;
+        this.shutting = true;
+        setTimeout(function () {
+            self.element.className = "gate almost";
+            setTimeout(function () {
+                self.element.className = "gate practically";
+                setTimeout(function () {
+                    self.element.className = "gate shut";
+                }, 250);
+            }, 250);
+        }, 250);
+    };
     return Gate;
 }());
 var Side;
@@ -349,6 +414,7 @@ var platforms;
 var ballHolders = [];
 var balls = [];
 var snail;
+var gates = [];
 window.onload = function () {
     walls = document.getElementsByClassName("wall");
     platforms = document.getElementsByClassName("platform");
@@ -360,7 +426,11 @@ window.onload = function () {
     for (var i = 0, length = ballElements.length; i < length; i++) {
         balls.push(new Ball(ballElements[i]));
     }
+    var gateElements = document.getElementsByClassName("gate");
+    for (var i = 0, length = gateElements.length; i < length; i++) {
+        gates.push(new Gate(gateElements[i]));
+    }
     snail = new Snail(document.getElementById("snail"), new Goal(document.getElementById("goal-blue"), Side.BLUE), new Goal(document.getElementById("goal-gold"), Side.GOLD));
-    new Bear("bear1", Side.BLUE, 37, 39, 32);
-    new Bear("bear2", Side.GOLD, 65, 68, 69);
+    new Bear(document.getElementById("bear1"), "one", Side.BLUE, 37, 39, 32);
+    new Bear(document.getElementById("bear2"), "two", Side.GOLD, 65, 68, 69);
 };

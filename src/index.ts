@@ -13,6 +13,7 @@ var platforms;
 var ballHolders: Array<BallHolder> = [];
 var balls: Array<Ball> = [];
 var snail: Snail;
+var gates: Array<Gate> = [];
 
 window.onload = function() {
     walls = document.getElementsByClassName("wall");
@@ -25,12 +26,16 @@ window.onload = function() {
     for (var i = 0, length = ballElements.length; i < length; i++) {
         balls.push(new Ball(ballElements[i] as HTMLElement));
     }
+    var gateElements = document.getElementsByClassName("gate");
+    for (var i = 0, length = gateElements.length; i < length; i++) {
+        gates.push(new Gate(gateElements[i] as HTMLElement));
+    }
     snail = new Snail(
         document.getElementById("snail"),
         new Goal(document.getElementById("goal-blue"), Side.BLUE),
         new Goal(document.getElementById("goal-gold"), Side.GOLD)
     );
-    new Bear("bear1", Side.BLUE, 37, 39, 32);
-    new Bear("bear2", Side.GOLD, 65, 68, 69);
+    new Bear(document.getElementById("bear1"), "one", Side.BLUE, 37, 39, 32);
+    new Bear(document.getElementById("bear2"), "two", Side.GOLD, 65, 68, 69);
 }
 

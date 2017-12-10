@@ -11,22 +11,58 @@
     background-image: url(platform.png);
 }
 .bear {
-    width: 30px;
-    height: 40px;
+    width: 25px;
+    height: 50px;
     position: absolute;
+}
+.bear.one {
+    background-image: url(motw.png);
+    background-size: 420px;
+    background-position: -40px 0px;
+}
+.bear.one.left {
+    background-position: -40px -49px;
+}
+.bear.one.left2 {
+    background-position: -2px -49px;
+}
+.bear.one.right {
+    background-position: -40px -97px;
+}
+.bear.one.right2 {
+    background-position: -2px -97px;
+}
+.bear.two {
+    background-image: url(motw.png);
+    background-size: 420px;
+    background-position: -354px 0px;
 }
 .gate {
     width: 60px;
-    height: 90px;
-    border: 1px solid black;
+    height: 60px;
     position: absolute;
-}
-#bear1 {
-    background-color: blue;
+    background-image: url(doors.png);
+    background-size: 270px;
+    background-color: silver;
+    border-right: 1px solid silver;
+    border-left: 1px solid silver;
+    border-top: 1px solid silver;
 }
 
-#bear2 {
-    background-color: gold;
+.gate.shut {
+    background-position: -15px 0px;
+}
+
+.gate.practically {
+    background-position: -15px -60px;
+}
+
+.gate.almost {
+    background-position: -15px -120px;
+}
+
+.gate.open {
+    background-position: -15px -180px;
 }
 
 .ball {
