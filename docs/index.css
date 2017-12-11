@@ -37,6 +37,18 @@
     background-size: 420px;
     background-position: -354px 0px;
 }
+.bear.two.left {
+    background-position: -354px -49px;
+}
+.bear.two.left2 {
+    background-position: -316px -49px;
+}
+.bear.two.right {
+    background-position: -354px -97px;
+}
+.bear.two.right2 {
+    background-position: -316px -97px;
+}
 .gate {
     width: 60px;
     height: 60px;

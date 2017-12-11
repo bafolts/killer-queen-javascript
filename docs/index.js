@@ -218,7 +218,7 @@ var Bear = /** @class */ (function () {
                 ballInPocession.element.style.top = self.element.offsetTop - ballInPocession.element.offsetHeight + "px";
                 ballInPocession.element.style.left = self.element.offsetLeft + ((self.element.offsetWidth / 2) - (ballInPocession.element.offsetWidth / 2)) + "px";
                 for (i = 0, length = gates.length; i < length; i++) {
-                    if (gates[i].shutting === false && intersects(self.element, gates[i].element)) {
+                    if (gates[i].isOpen === true && intersects(self.element, gates[i].element)) {
                         ballInPocession.removeFromPlay();
                         ballInPocession = undefined;
                         self.changeToWarrior();
@@ -350,18 +350,51 @@ var Goal = /** @class */ (function () {
 var Gate = /** @class */ (function () {
     function Gate(element) {
         this.element = element;
-        this.shutting = false;
+        this.isShutting = false;
+        this.isShut = false;
+        this.isOpening = false;
+        this.isOpen = true;
         var self = this;
     }
+    Gate.prototype.open = function () {
+        var self = this;
+        this.isShutting = false;
+        this.isOpening = true;
+        this.isShut = false;
+        this.isOpen = false;
+        setTimeout(function () {
+            self.element.className = "gate practically";
+            setTimeout(function () {
+                self.element.className = "gate almost";
+                setTimeout(function () {
+                    self.element.className = "gate open";
+                    self.isShut = false;
+                    self.isShutting = false;
+                    self.isOpen = true;
+                    self.isOpening = false;
+                }, 250);
+            }, 250);
+        }, 250);
+    };
     Gate.prototype.shut = function () {
         var self = this;
-        this.shutting = true;
+        this.isOpen = false;
+        this.isShut = false;
+        this.isShutting = true;
+        this.isOpening = false;
         setTimeout(function () {
             self.element.className = "gate almost";
             setTimeout(function () {
                 self.element.className = "gate practically";
                 setTimeout(function () {
                     self.element.className = "gate shut";
+                    self.isShut = true;
+                    self.isShutting = false;
+                    self.isOpen = false;
+                    self.isOpening = false;
+                    setTimeout(function () {
+                        self.open();
+                    }, 500);
                 }, 250);
             }, 250);
         }, 250);

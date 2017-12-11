@@ -248,7 +248,7 @@ class Bear {
             ballInPocession.element.style.left = self.element.offsetLeft + ((self.element.offsetWidth / 2) - (ballInPocession.element.offsetWidth / 2)) + "px";
 
             for (i = 0, length = gates.length; i < length; i++) {
-                if (gates[i].shutting === false && intersects(self.element, gates[i].element)) {
+                if (gates[i].isOpen === true && intersects(self.element, gates[i].element)) {
                     ballInPocession.removeFromPlay();
                     ballInPocession = undefined;
                     self.changeToWarrior();
