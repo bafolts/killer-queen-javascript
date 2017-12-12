@@ -74,34 +74,35 @@ class Bear {
         let ballInPocession: Ball | undefined;
         let leftSnail: number = (new Date()).getTime();
         let self = this;
-    var bearOnSnail = setInterval(function() {
 
-        if ((new Date()).getTime() - leftSnail > 2000 && snail.occupied === undefined && intersects(snail.element, self.element)) {
-            snail.occupy(self);
-        } else if (snail.occupied === self) {
-            if (dx.length === 0) {
-                return
-            }
-            if (dx[dx.length - 1] < 0) {
-                snail.element.style.left = snail.element.offsetLeft - 1 + "px";
-                if (snail.element.className === "snail left") {
-                    snail.element.className = "snail left again";
-                } else {
-                    snail.element.className = "snail left";
+        let bearOnSnail: number = setInterval(function() {
+            if ((new Date()).getTime() - leftSnail > 2000 && snail.occupied === undefined && intersects(snail.element, self.element)) {
+                snail.occupy(self);
+            } else if (snail.occupied === self) {
+                if (dx.length === 0) {
+                    return
                 }
-            } else {
-                snail.element.style.left = snail.element.offsetLeft + 1 + "px";
-                if (snail.element.className === "snail right") {
-                    snail.element.className = "snail right again";
+                if (dx[dx.length - 1] < 0) {
+                    snail.element.style.left = snail.element.offsetLeft - 1 + "px";
+                    if (snail.element.className === "snail left") {
+                        snail.element.className = "snail left again";
+                    } else {
+                        snail.element.className = "snail left";
+                    }
+                    self.element.className = "bear " + self.className + " left";
                 } else {
-                    snail.element.className = "snail right";
+                    snail.element.style.left = snail.element.offsetLeft + 1 + "px";
+                    if (snail.element.className === "snail right") {
+                        snail.element.className = "snail right again";
+                    } else {
+                        snail.element.className = "snail right";
+                    }
+                    self.element.className = "bear " + self.className + " right";
                 }
+                snail.checkForWin();
+                self.element.style.left = snail.element.offsetLeft + (snail.element.offsetWidth / 2) - (self.element.offsetWidth / 2) + "px";
             }
-            snail.checkForWin();
-            self.element.style.left = snail.element.offsetLeft + (snail.element.offsetWidth / 2) - (self.element.offsetWidth / 2) + "px";
-        }
-
-    }, 100);
+        }, 100);
 
     this.bearLoop = setInterval(function() {
         let i: number;

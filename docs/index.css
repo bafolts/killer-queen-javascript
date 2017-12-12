@@ -49,6 +49,40 @@
 .bear.two.right2 {
     background-position: -316px -97px;
 }
+.bear.three {
+    background-image: url(motw.png);
+    background-size: 420px;
+    background-position: -40px -194px;
+}
+.bear.three.left {
+    background-position: -40px -243px;
+}
+.bear.three.left2 {
+    background-position: -2px -243px;
+}
+.bear.three.right {
+    background-position: -40px -292px;
+}
+.bear.three.right2 {
+    background-position: -2px -292px;
+}
+.bear.four {
+    background-image: url(motw.png);
+    background-size: 420px;
+    background-position: -145px -194px;
+}
+.bear.four.left {
+    background-position: -145px -243px;
+}
+.bear.four.left2 {
+    background-position: -107px -243px;
+}
+.bear.four.right {
+    background-position: -145px -292px;
+}
+.bear.four.right2 {
+    background-position: -107px -292px;
+}
 .gate {
     width: 60px;
     height: 60px;

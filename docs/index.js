@@ -52,6 +52,7 @@ var Bear = /** @class */ (function () {
                     else {
                         snail.element.className = "snail left";
                     }
+                    self.element.className = "bear " + self.className + " left";
                 }
                 else {
                     snail.element.style.left = snail.element.offsetLeft + 1 + "px";
@@ -61,6 +62,7 @@ var Bear = /** @class */ (function () {
                     else {
                         snail.element.className = "snail right";
                     }
+                    self.element.className = "bear " + self.className + " right";
                 }
                 snail.checkForWin();
                 self.element.style.left = snail.element.offsetLeft + (snail.element.offsetWidth / 2) - (self.element.offsetWidth / 2) + "px";
@@ -466,4 +468,6 @@ window.onload = function () {
     snail = new Snail(document.getElementById("snail"), new Goal(document.getElementById("goal-blue"), Side.BLUE), new Goal(document.getElementById("goal-gold"), Side.GOLD));
     new Bear(document.getElementById("bear1"), "one", Side.BLUE, 37, 39, 32);
     new Bear(document.getElementById("bear2"), "two", Side.GOLD, 65, 68, 69);
+    new Bear(document.getElementById("bear3"), "three", Side.BLUE, 74, 76, 75);
+    new Bear(document.getElementById("bear4"), "four", Side.BLUE, 66, 77, 78);
 };
