@@ -39,5 +39,6 @@ window.onload = function() {
     new Bear(document.getElementById("bear2"), "two", Side.GOLD, 65, 68, 69);
     new Bear(document.getElementById("bear3"), "three", Side.BLUE, 74, 76, 75);
     new Bear(document.getElementById("bear4"), "four", Side.BLUE, 66, 77, 78);
+    new Bear(document.getElementById("bear5"), "five", Side.BLUE, 73, 80, 79);
 }
 

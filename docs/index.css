@@ -83,6 +83,23 @@
 .bear.four.right2 {
     background-position: -107px -292px;
 }
+.bear.five {
+    background-image: url(motw.png);
+    background-size: 420px;
+    background-position: -145px 0px;
+}
+.bear.five.left {
+    background-position: -145px -49px;
+}
+.bear.five.left2 {
+    background-position: -107px -49px;
+}
+.bear.five.right {
+    background-position: -145px -97px;
+}
+.bear.five.right2 {
+    background-position: -107px -97px;
+}
 .gate {
     width: 60px;
     height: 60px;
