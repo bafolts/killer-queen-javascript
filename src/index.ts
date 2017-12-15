@@ -36,9 +36,12 @@ window.onload = function() {
         new Goal(document.getElementById("goal-gold"), Side.GOLD)
     );
     new Bear(document.getElementById("bear1"), "one", Side.BLUE, 37, 39, 32);
-    new Bear(document.getElementById("bear2"), "two", Side.GOLD, 65, 68, 69);
+    new Bear(document.getElementById("bear2"), "two", Side.GOLD, 65, 68, 83);
     new Bear(document.getElementById("bear3"), "three", Side.BLUE, 74, 76, 75);
     new Bear(document.getElementById("bear4"), "four", Side.BLUE, 66, 77, 78);
     new Bear(document.getElementById("bear5"), "five", Side.BLUE, 73, 80, 79);
+    new Bear(document.getElementById("bear6"), "six", Side.GOLD, 90, 67, 88);
+    new Bear(document.getElementById("bear7"), "seven", Side.GOLD, 81, 69, 87);
+    new Bear(document.getElementById("bear8"), "eight", Side.GOLD, 49, 51, 50);
 }
 
