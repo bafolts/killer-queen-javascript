@@ -61,59 +61,51 @@ class Bear {
         }
     }
 
-    constructor(public element: HTMLElement, public className: string, color: Side, leftCode: number, rightCode: number, jumpCode: number) {
+    constructor(public element: HTMLElement, public className: string, color: Side, gamepadIndex: number) {
 
         element.className = "bear " + className;
 
-        let dx: Array<number> = [];
+        let dx: number = 0;
         let dy: number = 8;
-        let leftDown: boolean = false;
-        let rightDown: boolean = false;
         let jumpTimeout: number;
         let jumpStart: boolean = false;
         let ballInPocession: Ball | undefined;
         let leftSnail: number = (new Date()).getTime();
         let self = this;
 
-        let bearOnSnail: number = setInterval(function() {
+        function animateSnail(): void {
             if ((new Date()).getTime() - leftSnail > 2000 && snail.occupied === undefined && intersects(snail.element, self.element)) {
                 snail.occupy(self);
-            } else if (snail.occupied === self) {
-                if (dx.length === 0) {
-                    return
-                }
-                if (dx[dx.length - 1] < 0) {
-                    snail.element.style.left = snail.element.offsetLeft - 1 + "px";
-                    if (snail.element.className === "snail left") {
-                        snail.element.className = "snail left again";
-                    } else {
-                        snail.element.className = "snail left";
-                    }
-                    self.element.className = "bear " + self.className + " left";
+            } else if (snail.occupied === self && dx !== 0) {
+                let deltaMove = dx > 0 ? 1 : -1;
+                let direction = dx > 0 ? "right" : "left";
+                snail.element.style.left = snail.element.offsetLeft + deltaMove + "px";
+                if (snail.element.className === "snail " + direction) {
+                    snail.element.className = "snail " + direction + " again";
                 } else {
-                    snail.element.style.left = snail.element.offsetLeft + 1 + "px";
-                    if (snail.element.className === "snail right") {
-                        snail.element.className = "snail right again";
-                    } else {
-                        snail.element.className = "snail right";
-                    }
-                    self.element.className = "bear " + self.className + " right";
+                    snail.element.className = "snail " + direction;
                 }
+                self.element.className = "bear " + self.className + " " + direction;
                 snail.checkForWin();
                 self.element.style.left = snail.element.offsetLeft + (snail.element.offsetWidth / 2) - (self.element.offsetWidth / 2) + "px";
             }
-        }, 100);
+            setTimeout(function() {
+                requestAnimationFrame(animateSnail);
+            }, 100);
+        }
+
+        requestAnimationFrame(animateSnail);
 
         this.bearLoop = setInterval(function() {
             let i: number;
             let length: number;
             if (snail.occupied !== self) {
-                if (dx.length === 0) {
+                if (dx === 0) {
                     self.animateStanding();
                 }
-                if (dx.length > 0) {
+                if (dx !== 0) {
                     var currentLeft = self.element.offsetLeft;
-                    var change = dx[dx.length - 1];
+                    var change = dx;
 
                     if (change > 0) {
                         self.animateWalkRight();
@@ -274,29 +266,7 @@ class Bear {
 
         }, 50);
 
-    document.addEventListener("keyup", function(e) {
-        if (e.keyCode === leftCode && dx.indexOf(-5) !== -1) {
-           dx.splice(dx.indexOf(-5), 1);
-           leftDown = false;
-        }
-        if (e.keyCode === rightCode && dx.indexOf(5) !== -1) {
-            dx.splice(dx.indexOf(5), 1);
-            rightDown = false;
-        }
-        if (e.keyCode === jumpCode) {
-            dy = 8;
-            jumpStart = false;
-            clearTimeout(jumpTimeout);
-        }
-    });
-    document.addEventListener("keydown", function(e) {
-        if (leftDown === false && e.keyCode === leftCode) {
-            dx.push(-5);
-            leftDown = true;
-        } else if (rightDown === false && e.keyCode === rightCode) {
-            dx.push(5);
-            rightDown = true;
-        } else if (jumpStart === false && e.keyCode === jumpCode) {
+        function canStartJump(): void {
             var closestPlatform;
             for (var i = 0, length = platforms.length; i < length; i++) {
                 if (platforms[i].offsetLeft < self.element.offsetLeft + self.element.offsetWidth && platforms[i].offsetLeft + platforms[i].offsetWidth > self.element.offsetLeft) {
@@ -315,8 +285,32 @@ class Bear {
                 }
             }
         }
-        e.preventDefault();
-    });
 
+        function canStopJump(): void {
+            dy = 8;
+            jumpStart = false;
+            clearTimeout(jumpTimeout);
+        }
+
+        function checkButtons(): void {
+            let gamepad = window.navigator.getGamepads()[gamepadIndex];
+            if (gamepad) {
+                dx = gamepad.axes[0] * 5;
+                for (var i = 0; i < gamepad.buttons.length; i++) {
+                    if (gamepad.buttons[i].pressed) {
+                        if (jumpStart === false) {
+                            canStartJump();
+                        }
+                        break;
+                    }
+                }
+                if (jumpStart === true && i === gamepad.buttons.length) {
+                    canStopJump();
+                }
+            }
+            window.requestAnimationFrame(checkButtons);
+        }
+
+        window.requestAnimationFrame(checkButtons);
 }
 }

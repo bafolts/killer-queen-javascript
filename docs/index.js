@@ -23,61 +23,50 @@ var BallHolder = /** @class */ (function () {
     return BallHolder;
 }());
 var Bear = /** @class */ (function () {
-    function Bear(element, className, color, leftCode, rightCode, jumpCode) {
+    function Bear(element, className, color, gamepadIndex) {
         this.element = element;
         this.className = className;
         element.className = "bear " + className;
-        var dx = [];
+        var dx = 0;
         var dy = 8;
-        var leftDown = false;
-        var rightDown = false;
         var jumpTimeout;
         var jumpStart = false;
         var ballInPocession;
         var leftSnail = (new Date()).getTime();
         var self = this;
-        var bearOnSnail = setInterval(function () {
+        function animateSnail() {
             if ((new Date()).getTime() - leftSnail > 2000 && snail.occupied === undefined && intersects(snail.element, self.element)) {
                 snail.occupy(self);
             }
-            else if (snail.occupied === self) {
-                if (dx.length === 0) {
-                    return;
-                }
-                if (dx[dx.length - 1] < 0) {
-                    snail.element.style.left = snail.element.offsetLeft - 1 + "px";
-                    if (snail.element.className === "snail left") {
-                        snail.element.className = "snail left again";
-                    }
-                    else {
-                        snail.element.className = "snail left";
-                    }
-                    self.element.className = "bear " + self.className + " left";
+            else if (snail.occupied === self && dx !== 0) {
+                var deltaMove = dx > 0 ? 1 : -1;
+                var direction = dx > 0 ? "right" : "left";
+                snail.element.style.left = snail.element.offsetLeft + deltaMove + "px";
+                if (snail.element.className === "snail " + direction) {
+                    snail.element.className = "snail " + direction + " again";
                 }
                 else {
-                    snail.element.style.left = snail.element.offsetLeft + 1 + "px";
-                    if (snail.element.className === "snail right") {
-                        snail.element.className = "snail right again";
-                    }
-                    else {
-                        snail.element.className = "snail right";
-                    }
-                    self.element.className = "bear " + self.className + " right";
+                    snail.element.className = "snail " + direction;
                 }
+                self.element.className = "bear " + self.className + " " + direction;
                 snail.checkForWin();
                 self.element.style.left = snail.element.offsetLeft + (snail.element.offsetWidth / 2) - (self.element.offsetWidth / 2) + "px";
             }
-        }, 100);
+            setTimeout(function () {
+                requestAnimationFrame(animateSnail);
+            }, 100);
+        }
+        requestAnimationFrame(animateSnail);
         this.bearLoop = setInterval(function () {
             var i;
             var length;
             if (snail.occupied !== self) {
-                if (dx.length === 0) {
+                if (dx === 0) {
                     self.animateStanding();
                 }
-                if (dx.length > 0) {
+                if (dx !== 0) {
                     var currentLeft = self.element.offsetLeft;
-                    var change = dx[dx.length - 1];
+                    var change = dx;
                     if (change > 0) {
                         self.animateWalkRight();
                     }
@@ -243,51 +232,49 @@ var Bear = /** @class */ (function () {
                     }
             }
         }, 50);
-        document.addEventListener("keyup", function (e) {
-            if (e.keyCode === leftCode && dx.indexOf(-5) !== -1) {
-                dx.splice(dx.indexOf(-5), 1);
-                leftDown = false;
-            }
-            if (e.keyCode === rightCode && dx.indexOf(5) !== -1) {
-                dx.splice(dx.indexOf(5), 1);
-                rightDown = false;
-            }
-            if (e.keyCode === jumpCode) {
-                dy = 8;
-                jumpStart = false;
-                clearTimeout(jumpTimeout);
-            }
-        });
-        document.addEventListener("keydown", function (e) {
-            if (leftDown === false && e.keyCode === leftCode) {
-                dx.push(-5);
-                leftDown = true;
-            }
-            else if (rightDown === false && e.keyCode === rightCode) {
-                dx.push(5);
-                rightDown = true;
-            }
-            else if (jumpStart === false && e.keyCode === jumpCode) {
-                var closestPlatform;
-                for (var i = 0, length = platforms.length; i < length; i++) {
-                    if (platforms[i].offsetLeft < self.element.offsetLeft + self.element.offsetWidth && platforms[i].offsetLeft + platforms[i].offsetWidth > self.element.offsetLeft) {
-                        if (platforms[i].offsetTop === self.element.offsetTop + self.element.offsetHeight) {
-                            if (snail.occupied === self) {
-                                leftSnail = (new Date()).getTime();
-                                snail.unoccupy();
-                            }
-                            jumpStart = true;
-                            dy = -16;
-                            jumpTimeout = setTimeout(function () {
-                                dy = 8;
-                            }, 750);
-                            break;
+        function canStartJump() {
+            var closestPlatform;
+            for (var i = 0, length = platforms.length; i < length; i++) {
+                if (platforms[i].offsetLeft < self.element.offsetLeft + self.element.offsetWidth && platforms[i].offsetLeft + platforms[i].offsetWidth > self.element.offsetLeft) {
+                    if (platforms[i].offsetTop === self.element.offsetTop + self.element.offsetHeight) {
+                        if (snail.occupied === self) {
+                            leftSnail = (new Date()).getTime();
+                            snail.unoccupy();
                         }
+                        jumpStart = true;
+                        dy = -16;
+                        jumpTimeout = setTimeout(function () {
+                            dy = 8;
+                        }, 750);
+                        break;
                     }
                 }
             }
-            e.preventDefault();
-        });
+        }
+        function canStopJump() {
+            dy = 8;
+            jumpStart = false;
+            clearTimeout(jumpTimeout);
+        }
+        function checkButtons() {
+            var gamepad = window.navigator.getGamepads()[gamepadIndex];
+            if (gamepad) {
+                dx = gamepad.axes[0] * 5;
+                for (var i = 0; i < gamepad.buttons.length; i++) {
+                    if (gamepad.buttons[i].pressed) {
+                        if (jumpStart === false) {
+                            canStartJump();
+                        }
+                        break;
+                    }
+                }
+                if (jumpStart === true && i === gamepad.buttons.length) {
+                    canStopJump();
+                }
+            }
+            window.requestAnimationFrame(checkButtons);
+        }
+        window.requestAnimationFrame(checkButtons);
     }
     Bear.prototype.checkForWin = function () {
         var goldWin = true;
@@ -466,12 +453,12 @@ window.onload = function () {
         gates.push(new Gate(gateElements[i]));
     }
     snail = new Snail(document.getElementById("snail"), new Goal(document.getElementById("goal-blue"), Side.BLUE), new Goal(document.getElementById("goal-gold"), Side.GOLD));
-    new Bear(document.getElementById("bear1"), "one", Side.BLUE, 37, 39, 32);
-    new Bear(document.getElementById("bear2"), "two", Side.GOLD, 65, 68, 83);
-    new Bear(document.getElementById("bear3"), "three", Side.BLUE, 74, 76, 75);
-    new Bear(document.getElementById("bear4"), "four", Side.BLUE, 66, 77, 78);
-    new Bear(document.getElementById("bear5"), "five", Side.BLUE, 73, 80, 79);
-    new Bear(document.getElementById("bear6"), "six", Side.GOLD, 90, 67, 88);
-    new Bear(document.getElementById("bear7"), "seven", Side.GOLD, 81, 69, 87);
-    new Bear(document.getElementById("bear8"), "eight", Side.GOLD, 49, 51, 50);
+    new Bear(document.getElementById("bear1"), "one", Side.BLUE, 0);
+    new Bear(document.getElementById("bear2"), "two", Side.GOLD, 1);
+    new Bear(document.getElementById("bear3"), "three", Side.BLUE, 2);
+    new Bear(document.getElementById("bear4"), "four", Side.BLUE, 3);
+    new Bear(document.getElementById("bear5"), "five", Side.BLUE, 4);
+    new Bear(document.getElementById("bear6"), "six", Side.GOLD, 5);
+    new Bear(document.getElementById("bear7"), "seven", Side.GOLD, 6);
+    new Bear(document.getElementById("bear8"), "eight", Side.GOLD, 7);
 };
