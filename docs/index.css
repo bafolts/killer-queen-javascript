@@ -10,6 +10,12 @@
     background-color: brown;
     background-image: url(platform.png);
 }
+.queen {
+    width: 40px;
+    height: 60px;
+    position: absolute;
+    border: 1px solid black;
+}
 .bear {
     width: 25px;
     height: 50px;

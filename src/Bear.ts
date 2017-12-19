@@ -1,4 +1,81 @@
 
+function getClosestWallToLeft(element: HTMLElement): HTMLElement {
+    
+    var closestWall;
+    for (let i = 0, length = walls.length; i < length; i++) {
+        if (walls[i].offsetTop <= element.offsetTop && walls[i].offsetTop + walls[i].offsetHeight >= element.offsetTop) {
+            if (walls[i].offsetLeft + walls[i].offsetWidth <= element.offsetLeft) {
+                if (closestWall === undefined || walls[i].offsetLeft > closestWall.offsetLeft) {
+                    closestWall = walls[i];
+                }
+            }
+        }
+    }
+    for (let i = 0, length = platforms.length; i < length; i++) {
+        if (
+            (platforms[i].offsetTop >= element.offsetTop && platforms[i].offsetTop <= element.offsetTop + element.offsetHeight) ||
+            (platforms[i].offsetTop + platforms[i].offsetHeight >= element.offsetTop && platforms[i].offsetTop + platforms[i].offsetHeight <= element.offsetTop + element.offsetHeight)) {
+                if (platforms[i].offsetLeft + platforms[i].offsetWidth <= element.offsetLeft) {
+                    if (closestWall === undefined || platforms[i].offsetLeft + platforms[i].offsetWidth > closestWall.offsetLeft + closestWall.offsetWidth) {
+                        closestWall = platforms[i];
+                    }
+                }
+        }
+    }
+    return closestWall;
+}
+
+function getClosestWallToRight(element: HTMLElement): HTMLElement {
+    var closestWall;
+    for (let i = 0, length = walls.length; i < length; i++) {
+        if (walls[i].offsetTop <= element.offsetTop && walls[i].offsetTop + walls[i].offsetHeight >= element.offsetTop) {
+            if (walls[i].offsetLeft >= element.offsetLeft + element.offsetWidth) {
+                if (closestWall === undefined || walls[i].offsetLeft < closestWall.offsetLeft) {
+                    closestWall = walls[i];
+                }
+            }
+        }
+    }
+    for (let i = 0, length = platforms.length; i < length; i++) {
+        if (
+            (platforms[i].offsetTop >= element.offsetTop && platforms[i].offsetTop <= element.offsetTop + element.offsetHeight) ||
+            (platforms[i].offsetTop + platforms[i].offsetHeight >= element.offsetTop && platforms[i].offsetTop + platforms[i].offsetHeight <= element.offsetTop + element.offsetHeight)) {
+            if (platforms[i].offsetLeft >= element.offsetLeft + element.offsetWidth) {
+                if (closestWall === undefined || platforms[i].offsetLeft < closestWall.offsetLeft) {
+                    closestWall = platforms[i];
+                }
+            }
+        }
+    }
+    return closestWall;
+}
+
+function animateMoveRight(element: HTMLElement, closestWall: HTMLElement, distance: number): void {
+    if (closestWall !== undefined && element.offsetLeft + element.offsetWidth === closestWall.offsetLeft) {
+                        } else if (closestWall !== undefined && element.offsetLeft + element.offsetWidth + distance >= closestWall.offsetLeft) {
+                            element.style.left = (closestWall.offsetLeft - element.offsetWidth) + "px";
+                        } else {
+                            if (element.offsetLeft + element.offsetWidth >= 1600) {
+                                element.style.left = 0 + distance + "px";
+                            } else {
+                                element.style.left = element.offsetLeft + distance + "px";
+                            }
+                        }
+}
+
+function animateMoveLeft(element: HTMLElement, closestWall: HTMLElement, distance: number): void {
+    if (closestWall !== undefined && element.offsetLeft === closestWall.offsetLeft + closestWall.offsetWidth) {
+    } else if (closestWall !== undefined && element.offsetLeft + distance <= closestWall.offsetLeft + closestWall.offsetWidth) {
+       element.style.left = closestWall.offsetLeft + closestWall.offsetWidth + "px";
+    } else {
+        if (element.offsetLeft + distance < 0) {
+            element.style.left = (1600 - element.offsetLeft) + distance + "px";
+        } else {
+            element.style.left = element.offsetLeft + distance + "px";
+        }
+    }
+}
+
 class Bear {
 
     private game: number;
@@ -114,69 +191,11 @@ class Bear {
                     }
 
                     if (change > 0) {
-                        var closestWall;
-                        for (i = 0, length = walls.length; i < length; i++) {
-                            if (walls[i].offsetTop <= self.element.offsetTop && walls[i].offsetTop + walls[i].offsetHeight >= self.element.offsetTop) {
-                                if (walls[i].offsetLeft >= self.element.offsetLeft + self.element.offsetWidth) {
-                                    if (closestWall === undefined || walls[i].offsetLeft < closestWall.offsetLeft) {
-                                        closestWall = walls[i];
-                                    }
-                                }
-                            }
-                        }
-                        for (i = 0, length = platforms.length; i < length; i++) {
-                            if (
-                                (platforms[i].offsetTop >= self.element.offsetTop && platforms[i].offsetTop <= self.element.offsetTop + self.element.offsetHeight) ||
-                                (platforms[i].offsetTop + platforms[i].offsetHeight >= self.element.offsetTop && platforms[i].offsetTop + platforms[i].offsetHeight <= self.element.offsetTop + self.element.offsetHeight)) {
-                                    if (platforms[i].offsetLeft >= self.element.offsetLeft + self.element.offsetWidth) {
-                                        if (closestWall === undefined || platforms[i].offsetLeft < closestWall.offsetLeft) {
-                                            closestWall = platforms[i];
-                                        }
-                                    }
-                            }
-                        }
-                        if (closestWall !== undefined && self.element.offsetLeft + self.element.offsetWidth === closestWall.offsetLeft) {
-                        } else if (closestWall !== undefined && self.element.offsetLeft + self.element.offsetWidth + change >= closestWall.offsetLeft) {
-                            self.element.style.left = (closestWall.offsetLeft - self.element.offsetWidth) + "px";
-                        } else {
-                            if (self.element.offsetLeft + self.element.offsetWidth >= 1600) {
-                                self.element.style.left = 0 + change + "px";
-                            } else {
-                                self.element.style.left = self.element.offsetLeft + change + "px";
-                            }
-                        }
+                        let closestWall = getClosestWallToRight(self.element);
+                        animateMoveRight(self.element, closestWall, change);
                     } else {
-                        var closestWall;
-                        for (i = 0, length = walls.length; i < length; i++) {
-                            if (walls[i].offsetTop <= self.element.offsetTop && walls[i].offsetTop + walls[i].offsetHeight >= self.element.offsetTop) {
-                                if (walls[i].offsetLeft + walls[i].offsetWidth <= self.element.offsetLeft) {
-                                    if (closestWall === undefined || walls[i].offsetLeft > closestWall.offsetLeft) {
-                                        closestWall = walls[i];
-                                    }
-                                }
-                            }
-                        }
-                        for (i = 0, length = platforms.length; i < length; i++) {
-                            if (
-                                (platforms[i].offsetTop >= self.element.offsetTop && platforms[i].offsetTop <= self.element.offsetTop + self.element.offsetHeight) ||
-                                (platforms[i].offsetTop + platforms[i].offsetHeight >= self.element.offsetTop && platforms[i].offsetTop + platforms[i].offsetHeight <= self.element.offsetTop + self.element.offsetHeight)) {
-                                    if (platforms[i].offsetLeft + platforms[i].offsetWidth <= self.element.offsetLeft) {
-                                        if (closestWall === undefined || platforms[i].offsetLeft + platforms[i].offsetWidth > closestWall.offsetLeft + closestWall.offsetWidth) {
-                                            closestWall = platforms[i];
-                                        }
-                                    }
-                            }
-                        }
-                        if (closestWall !== undefined && self.element.offsetLeft === closestWall.offsetLeft + closestWall.offsetWidth) {
-                        } else if (closestWall !== undefined && self.element.offsetLeft + change <= closestWall.offsetLeft + closestWall.offsetWidth) {
-                            self.element.style.left = closestWall.offsetLeft + closestWall.offsetWidth + "px";
-                        } else {
-                            if (self.element.offsetLeft + change < 0) {
-                                self.element.style.left = (1600 - self.element.offsetLeft) + change + "px";
-                            } else {
-                                self.element.style.left = self.element.offsetLeft + change + "px";
-                            }
-                        }
+                        let closestWall = getClosestWallToLeft(self.element);
+                        animateMoveLeft(self.element, closestWall, change);
                     }
                 }
             }

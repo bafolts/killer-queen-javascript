@@ -22,6 +22,82 @@ var BallHolder = /** @class */ (function () {
     };
     return BallHolder;
 }());
+function getClosestWallToLeft(element) {
+    var closestWall;
+    for (var i = 0, length_1 = walls.length; i < length_1; i++) {
+        if (walls[i].offsetTop <= element.offsetTop && walls[i].offsetTop + walls[i].offsetHeight >= element.offsetTop) {
+            if (walls[i].offsetLeft + walls[i].offsetWidth <= element.offsetLeft) {
+                if (closestWall === undefined || walls[i].offsetLeft > closestWall.offsetLeft) {
+                    closestWall = walls[i];
+                }
+            }
+        }
+    }
+    for (var i = 0, length_2 = platforms.length; i < length_2; i++) {
+        if ((platforms[i].offsetTop >= element.offsetTop && platforms[i].offsetTop <= element.offsetTop + element.offsetHeight) ||
+            (platforms[i].offsetTop + platforms[i].offsetHeight >= element.offsetTop && platforms[i].offsetTop + platforms[i].offsetHeight <= element.offsetTop + element.offsetHeight)) {
+            if (platforms[i].offsetLeft + platforms[i].offsetWidth <= element.offsetLeft) {
+                if (closestWall === undefined || platforms[i].offsetLeft + platforms[i].offsetWidth > closestWall.offsetLeft + closestWall.offsetWidth) {
+                    closestWall = platforms[i];
+                }
+            }
+        }
+    }
+    return closestWall;
+}
+function getClosestWallToRight(element) {
+    var closestWall;
+    for (var i = 0, length_3 = walls.length; i < length_3; i++) {
+        if (walls[i].offsetTop <= element.offsetTop && walls[i].offsetTop + walls[i].offsetHeight >= element.offsetTop) {
+            if (walls[i].offsetLeft >= element.offsetLeft + element.offsetWidth) {
+                if (closestWall === undefined || walls[i].offsetLeft < closestWall.offsetLeft) {
+                    closestWall = walls[i];
+                }
+            }
+        }
+    }
+    for (var i = 0, length_4 = platforms.length; i < length_4; i++) {
+        if ((platforms[i].offsetTop >= element.offsetTop && platforms[i].offsetTop <= element.offsetTop + element.offsetHeight) ||
+            (platforms[i].offsetTop + platforms[i].offsetHeight >= element.offsetTop && platforms[i].offsetTop + platforms[i].offsetHeight <= element.offsetTop + element.offsetHeight)) {
+            if (platforms[i].offsetLeft >= element.offsetLeft + element.offsetWidth) {
+                if (closestWall === undefined || platforms[i].offsetLeft < closestWall.offsetLeft) {
+                    closestWall = platforms[i];
+                }
+            }
+        }
+    }
+    return closestWall;
+}
+function animateMoveRight(element, closestWall, distance) {
+    if (closestWall !== undefined && element.offsetLeft + element.offsetWidth === closestWall.offsetLeft) {
+    }
+    else if (closestWall !== undefined && element.offsetLeft + element.offsetWidth + distance >= closestWall.offsetLeft) {
+        element.style.left = (closestWall.offsetLeft - element.offsetWidth) + "px";
+    }
+    else {
+        if (element.offsetLeft + element.offsetWidth >= 1600) {
+            element.style.left = 0 + distance + "px";
+        }
+        else {
+            element.style.left = element.offsetLeft + distance + "px";
+        }
+    }
+}
+function animateMoveLeft(element, closestWall, distance) {
+    if (closestWall !== undefined && element.offsetLeft === closestWall.offsetLeft + closestWall.offsetWidth) {
+    }
+    else if (closestWall !== undefined && element.offsetLeft + distance <= closestWall.offsetLeft + closestWall.offsetWidth) {
+        element.style.left = closestWall.offsetLeft + closestWall.offsetWidth + "px";
+    }
+    else {
+        if (element.offsetLeft + distance < 0) {
+            element.style.left = (1600 - element.offsetLeft) + distance + "px";
+        }
+        else {
+            element.style.left = element.offsetLeft + distance + "px";
+        }
+    }
+}
 var Bear = /** @class */ (function () {
     function Bear(element, className, color, gamepadIndex) {
         this.element = element;
@@ -74,74 +150,12 @@ var Bear = /** @class */ (function () {
                         self.animateWalkLeft();
                     }
                     if (change > 0) {
-                        var closestWall;
-                        for (i = 0, length = walls.length; i < length; i++) {
-                            if (walls[i].offsetTop <= self.element.offsetTop && walls[i].offsetTop + walls[i].offsetHeight >= self.element.offsetTop) {
-                                if (walls[i].offsetLeft >= self.element.offsetLeft + self.element.offsetWidth) {
-                                    if (closestWall === undefined || walls[i].offsetLeft < closestWall.offsetLeft) {
-                                        closestWall = walls[i];
-                                    }
-                                }
-                            }
-                        }
-                        for (i = 0, length = platforms.length; i < length; i++) {
-                            if ((platforms[i].offsetTop >= self.element.offsetTop && platforms[i].offsetTop <= self.element.offsetTop + self.element.offsetHeight) ||
-                                (platforms[i].offsetTop + platforms[i].offsetHeight >= self.element.offsetTop && platforms[i].offsetTop + platforms[i].offsetHeight <= self.element.offsetTop + self.element.offsetHeight)) {
-                                if (platforms[i].offsetLeft >= self.element.offsetLeft + self.element.offsetWidth) {
-                                    if (closestWall === undefined || platforms[i].offsetLeft < closestWall.offsetLeft) {
-                                        closestWall = platforms[i];
-                                    }
-                                }
-                            }
-                        }
-                        if (closestWall !== undefined && self.element.offsetLeft + self.element.offsetWidth === closestWall.offsetLeft) {
-                        }
-                        else if (closestWall !== undefined && self.element.offsetLeft + self.element.offsetWidth + change >= closestWall.offsetLeft) {
-                            self.element.style.left = (closestWall.offsetLeft - self.element.offsetWidth) + "px";
-                        }
-                        else {
-                            if (self.element.offsetLeft + self.element.offsetWidth >= 1600) {
-                                self.element.style.left = 0 + change + "px";
-                            }
-                            else {
-                                self.element.style.left = self.element.offsetLeft + change + "px";
-                            }
-                        }
+                        var closestWall = getClosestWallToRight(self.element);
+                        animateMoveRight(self.element, closestWall, change);
                     }
                     else {
-                        var closestWall;
-                        for (i = 0, length = walls.length; i < length; i++) {
-                            if (walls[i].offsetTop <= self.element.offsetTop && walls[i].offsetTop + walls[i].offsetHeight >= self.element.offsetTop) {
-                                if (walls[i].offsetLeft + walls[i].offsetWidth <= self.element.offsetLeft) {
-                                    if (closestWall === undefined || walls[i].offsetLeft > closestWall.offsetLeft) {
-                                        closestWall = walls[i];
-                                    }
-                                }
-                            }
-                        }
-                        for (i = 0, length = platforms.length; i < length; i++) {
-                            if ((platforms[i].offsetTop >= self.element.offsetTop && platforms[i].offsetTop <= self.element.offsetTop + self.element.offsetHeight) ||
-                                (platforms[i].offsetTop + platforms[i].offsetHeight >= self.element.offsetTop && platforms[i].offsetTop + platforms[i].offsetHeight <= self.element.offsetTop + self.element.offsetHeight)) {
-                                if (platforms[i].offsetLeft + platforms[i].offsetWidth <= self.element.offsetLeft) {
-                                    if (closestWall === undefined || platforms[i].offsetLeft + platforms[i].offsetWidth > closestWall.offsetLeft + closestWall.offsetWidth) {
-                                        closestWall = platforms[i];
-                                    }
-                                }
-                            }
-                        }
-                        if (closestWall !== undefined && self.element.offsetLeft === closestWall.offsetLeft + closestWall.offsetWidth) {
-                        }
-                        else if (closestWall !== undefined && self.element.offsetLeft + change <= closestWall.offsetLeft + closestWall.offsetWidth) {
-                            self.element.style.left = closestWall.offsetLeft + closestWall.offsetWidth + "px";
-                        }
-                        else {
-                            if (self.element.offsetLeft + change < 0) {
-                                self.element.style.left = (1600 - self.element.offsetLeft) + change + "px";
-                            }
-                            else {
-                                self.element.style.left = self.element.offsetLeft + change + "px";
-                            }
-                        }
+                        var closestWall = getClosestWallToLeft(self.element);
+                        animateMoveLeft(self.element, closestWall, change);
                     }
                 }
             }
@@ -390,6 +404,56 @@ var Gate = /** @class */ (function () {
     };
     return Gate;
 }());
+var Queen = /** @class */ (function () {
+    function Queen(element, className, side, gamepadIndex) {
+        this.element = element;
+        this.className = className;
+        this.side = side;
+        this.gamepadIndex = gamepadIndex;
+        this.dx = 0;
+        this.dy = 0;
+        this.swinging = false;
+        this.setupControls();
+        requestAnimationFrame(this.animate.bind(this));
+    }
+    Queen.prototype.animate = function () {
+        var change = this.dx;
+        if (this.dx > 0) {
+            animateMoveRight(this.element, getClosestWallToRight(this.element), this.dx);
+        }
+        else {
+            animateMoveLeft(this.element, getClosestWallToLeft(this.element), this.dx);
+        }
+        requestAnimationFrame(this.animate.bind(this));
+    };
+    Queen.prototype.setupControls = function () {
+        var self = this;
+        document.addEventListener("keyup", function (e) {
+            if (e.keyCode === 37 || e.keyCode === 39) {
+                self.dx = 0;
+            }
+            if (e.keyCode === 40) {
+                self.dy = 8;
+            }
+        });
+        document.addEventListener("keydown", function (e) {
+            if (e.keyCode === 37) {
+                self.dx = -8;
+            }
+            else if (e.keyCode === 39) {
+                self.dx = 8;
+            }
+            else if (e.keyCode === 40) {
+                self.dy = 16;
+            }
+            // 37 = left
+            // 39 = right
+            // 38 = up
+            // 40 = down
+        });
+    };
+    return Queen;
+}());
 var Side;
 (function (Side) {
     Side["BLUE"] = "blue";
@@ -428,6 +492,7 @@ function intersects(item1, item2) {
 /// <reference path="Bear.ts" />
 /// <reference path="Goal.ts" />
 /// <reference path="Gate.ts" />
+/// <reference path="Queen.ts" />
 /// <reference path="Side.ts" />
 /// <reference path="Snail.ts" />
 /// <reference path="utils.ts" />
@@ -461,4 +526,5 @@ window.onload = function () {
     new Bear(document.getElementById("bear6"), "six", Side.GOLD, 5);
     new Bear(document.getElementById("bear7"), "seven", Side.GOLD, 6);
     new Bear(document.getElementById("bear8"), "eight", Side.GOLD, 7);
+    new Queen(document.getElementById("queen1"), "one", Side.BLUE, 8);
 };

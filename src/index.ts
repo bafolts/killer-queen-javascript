@@ -4,6 +4,7 @@
 /// <reference path="Bear.ts" />
 /// <reference path="Goal.ts" />
 /// <reference path="Gate.ts" />
+/// <reference path="Queen.ts" />
 /// <reference path="Side.ts" />
 /// <reference path="Snail.ts" />
 /// <reference path="utils.ts" />
@@ -43,5 +44,6 @@ window.onload = function() {
     new Bear(document.getElementById("bear6"), "six", Side.GOLD, 5);
     new Bear(document.getElementById("bear7"), "seven", Side.GOLD, 6);
     new Bear(document.getElementById("bear8"), "eight", Side.GOLD, 7);
+    new Queen(document.getElementById("queen1"), "one", Side.BLUE, 8);
 }
 
