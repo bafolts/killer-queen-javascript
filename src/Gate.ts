@@ -30,6 +30,15 @@ class Gate {
         }, 250);
     }
 
+    public setSide(side: Side): void {
+        this.side = side;
+        if (this.side === Side.BLUE) {
+            this.element.style.backgroundColor = "blue";
+        } else {
+            this.element.style.backgroundColor = "gold";
+        }
+    }
+
     public shut(): void {
         let self = this;
         this.isOpen = false;

@@ -68,6 +68,32 @@ function getClosestWallToRight(element) {
     }
     return closestWall;
 }
+function getClosestPlatformBelow(element) {
+    var closestPlatform;
+    for (var i = 0, length_5 = platforms.length; i < length_5; i++) {
+        if (platforms[i].offsetLeft < element.offsetLeft + element.offsetWidth && platforms[i].offsetLeft + platforms[i].offsetWidth > element.offsetLeft) {
+            if (platforms[i].offsetTop >= element.offsetTop + element.offsetHeight) {
+                if (closestPlatform === undefined || platforms[i].offsetTop < closestPlatform.offsetTop) {
+                    closestPlatform = platforms[i];
+                }
+            }
+        }
+    }
+    return closestPlatform;
+}
+function getClosestPlatformAbove(element) {
+    var closestPlatform;
+    for (var i = 0, length_6 = platforms.length; i < length_6; i++) {
+        if (platforms[i].offsetLeft < element.offsetLeft + element.offsetWidth && platforms[i].offsetLeft + platforms[i].offsetWidth > element.offsetLeft) {
+            if (platforms[i].offsetTop + platforms[i].offsetHeight <= element.offsetTop) {
+                if (closestPlatform === undefined || platforms[i].offsetTop + platforms[i].offsetHeight > closestPlatform.offsetTop + closestPlatform.offsetHeight) {
+                    closestPlatform = platforms[i];
+                }
+            }
+        }
+    }
+    return closestPlatform;
+}
 function animateMoveRight(element, closestWall, distance) {
     if (closestWall !== undefined && element.offsetLeft + element.offsetWidth === closestWall.offsetLeft) {
     }
@@ -96,6 +122,26 @@ function animateMoveLeft(element, closestWall, distance) {
         else {
             element.style.left = element.offsetLeft + distance + "px";
         }
+    }
+}
+function animateFreeFalling(element, closestPlatform, distance) {
+    if (closestPlatform !== undefined && element.offsetTop + element.offsetHeight === closestPlatform.offsetTop) {
+    }
+    else if (closestPlatform !== undefined && element.offsetTop + element.offsetHeight + distance >= closestPlatform.offsetTop) {
+        element.style.top = closestPlatform.offsetTop - element.offsetHeight + "px";
+    }
+    else if (closestPlatform !== undefined) {
+        element.style.top = element.offsetTop + distance + "px";
+    }
+}
+function animateRising(element, closestPlatform, distance) {
+    if (closestPlatform !== undefined && element.offsetTop === closestPlatform.offsetTop + closestPlatform.offsetHeight) {
+    }
+    else if (closestPlatform !== undefined && element.offsetTop + distance <= closestPlatform.offsetTop + closestPlatform.offsetHeight) {
+        element.style.top = closestPlatform.offsetTop + closestPlatform.offsetHeight + "px";
+    }
+    else {
+        element.style.top = Math.max(0, element.offsetTop + distance) + "px";
     }
 }
 var Bear = /** @class */ (function () {
@@ -160,36 +206,10 @@ var Bear = /** @class */ (function () {
                 }
             }
             if (dy > 0) {
-                var closestPlatform = void 0;
-                for (i = 0, length = platforms.length; i < length; i++) {
-                    if (platforms[i].offsetLeft < self.element.offsetLeft + self.element.offsetWidth && platforms[i].offsetLeft + platforms[i].offsetWidth > self.element.offsetLeft) {
-                        if (platforms[i].offsetTop >= self.element.offsetTop + self.element.offsetHeight) {
-                            if (closestPlatform === undefined || platforms[i].offsetTop < closestPlatform.offsetTop) {
-                                closestPlatform = platforms[i];
-                            }
-                        }
-                    }
-                }
-                if (closestPlatform !== undefined && self.element.offsetTop + self.element.offsetHeight === closestPlatform.offsetTop) {
-                }
-                else if (closestPlatform !== undefined && self.element.offsetTop + self.element.offsetHeight + 8 >= closestPlatform.offsetTop) {
-                    self.element.style.top = closestPlatform.offsetTop - self.element.offsetHeight + "px";
-                }
-                else if (closestPlatform !== undefined) {
-                    self.element.style.top = self.element.offsetTop + 8 + "px";
-                }
+                animateFreeFalling(self.element, getClosestPlatformBelow(self.element), 8);
             }
             else {
-                var closestPlatform = void 0;
-                for (i = 0, length = platforms.length; i < length; i++) {
-                    if (platforms[i].offsetLeft < self.element.offsetLeft + self.element.offsetWidth && platforms[i].offsetLeft + platforms[i].offsetWidth > self.element.offsetLeft) {
-                        if (platforms[i].offsetTop + platforms[i].offsetHeight <= self.element.offsetTop) {
-                            if (closestPlatform === undefined || platforms[i].offsetTop + platforms[i].offsetHeight > closestPlatform.offsetTop + closestPlatform.offsetHeight) {
-                                closestPlatform = platforms[i];
-                            }
-                        }
-                    }
-                }
+                var closestPlatform = getClosestPlatformAbove(self.element);
                 if (closestPlatform !== undefined && self.element.offsetTop === closestPlatform.offsetTop + closestPlatform.offsetHeight) {
                     clearTimeout(jumpTimeout);
                     dy = 8;
@@ -379,6 +399,15 @@ var Gate = /** @class */ (function () {
             }, 250);
         }, 250);
     };
+    Gate.prototype.setSide = function (side) {
+        this.side = side;
+        if (this.side === Side.BLUE) {
+            this.element.style.backgroundColor = "blue";
+        }
+        else {
+            this.element.style.backgroundColor = "gold";
+        }
+    };
     Gate.prototype.shut = function () {
         var self = this;
         this.isOpen = false;
@@ -411,20 +440,35 @@ var Queen = /** @class */ (function () {
         this.side = side;
         this.gamepadIndex = gamepadIndex;
         this.dx = 0;
-        this.dy = 0;
+        this.dy = 8;
         this.swinging = false;
+        this.flapping = false;
         this.setupControls();
         requestAnimationFrame(this.animate.bind(this));
     }
     Queen.prototype.animate = function () {
         var change = this.dx;
+        var self = this;
         if (this.dx > 0) {
             animateMoveRight(this.element, getClosestWallToRight(this.element), this.dx);
         }
         else {
             animateMoveLeft(this.element, getClosestWallToLeft(this.element), this.dx);
         }
-        requestAnimationFrame(this.animate.bind(this));
+        if (this.dy > 0) {
+            animateFreeFalling(this.element, getClosestPlatformBelow(this.element), this.dy);
+        }
+        else if (this.dy < 0) {
+            animateRising(this.element, getClosestPlatformAbove(this.element), this.dy);
+        }
+        for (var i = 0, length_7 = gates.length; i < length_7; i++) {
+            if (intersects(gates[i].element, self.element)) {
+                gates[i].setSide(self.side);
+            }
+        }
+        setTimeout(function () {
+            requestAnimationFrame(self.animate.bind(self));
+        }, 50);
     };
     Queen.prototype.setupControls = function () {
         var self = this;
@@ -446,6 +490,15 @@ var Queen = /** @class */ (function () {
             else if (e.keyCode === 40) {
                 self.dy = 16;
             }
+            else if (e.keyCode === 32 && self.flapping === false) {
+                self.flapping = true;
+                self.dy = -4;
+                setTimeout(function () {
+                    self.dy = 8;
+                    self.flapping = false;
+                }, 400);
+            }
+            // 32 = spacebar
             // 37 = left
             // 39 = right
             // 38 = up

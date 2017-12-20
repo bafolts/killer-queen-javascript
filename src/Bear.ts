@@ -1,5 +1,5 @@
 
-function getClosestWallToLeft(element: HTMLElement): HTMLElement {
+function getClosestWallToLeft(element: HTMLElement): HTMLElement | undefined {
     
     var closestWall;
     for (let i = 0, length = walls.length; i < length; i++) {
@@ -25,7 +25,7 @@ function getClosestWallToLeft(element: HTMLElement): HTMLElement {
     return closestWall;
 }
 
-function getClosestWallToRight(element: HTMLElement): HTMLElement {
+function getClosestWallToRight(element: HTMLElement): HTMLElement | undefined {
     var closestWall;
     for (let i = 0, length = walls.length; i < length; i++) {
         if (walls[i].offsetTop <= element.offsetTop && walls[i].offsetTop + walls[i].offsetHeight >= element.offsetTop) {
@@ -50,20 +50,48 @@ function getClosestWallToRight(element: HTMLElement): HTMLElement {
     return closestWall;
 }
 
-function animateMoveRight(element: HTMLElement, closestWall: HTMLElement, distance: number): void {
-    if (closestWall !== undefined && element.offsetLeft + element.offsetWidth === closestWall.offsetLeft) {
-                        } else if (closestWall !== undefined && element.offsetLeft + element.offsetWidth + distance >= closestWall.offsetLeft) {
-                            element.style.left = (closestWall.offsetLeft - element.offsetWidth) + "px";
-                        } else {
-                            if (element.offsetLeft + element.offsetWidth >= 1600) {
-                                element.style.left = 0 + distance + "px";
-                            } else {
-                                element.style.left = element.offsetLeft + distance + "px";
-                            }
-                        }
+function getClosestPlatformBelow(element: HTMLElement): HTMLElement | undefined {
+    let closestPlatform;
+    for (let i = 0, length = platforms.length; i < length; i++) {
+        if (platforms[i].offsetLeft < element.offsetLeft + element.offsetWidth && platforms[i].offsetLeft + platforms[i].offsetWidth > element.offsetLeft) {
+            if (platforms[i].offsetTop >= element.offsetTop + element.offsetHeight) {
+                if (closestPlatform === undefined || platforms[i].offsetTop < closestPlatform.offsetTop) {
+                    closestPlatform = platforms[i];
+                }
+            }
+        }
+    }
+    return closestPlatform; 
 }
 
-function animateMoveLeft(element: HTMLElement, closestWall: HTMLElement, distance: number): void {
+function getClosestPlatformAbove(element: HTMLElement): HTMLElement | undefined {
+    let closestPlatform;
+    for (let i = 0, length = platforms.length; i < length; i++) {
+        if (platforms[i].offsetLeft < element.offsetLeft + element.offsetWidth && platforms[i].offsetLeft + platforms[i].offsetWidth > element.offsetLeft) {
+            if (platforms[i].offsetTop + platforms[i].offsetHeight <= element.offsetTop) {
+                if (closestPlatform === undefined || platforms[i].offsetTop + platforms[i].offsetHeight > closestPlatform.offsetTop + closestPlatform.offsetHeight) {
+                    closestPlatform = platforms[i];
+                }
+            }
+        }
+    }
+    return closestPlatform;
+}
+
+function animateMoveRight(element: HTMLElement, closestWall: HTMLElement | undefined, distance: number): void {
+    if (closestWall !== undefined && element.offsetLeft + element.offsetWidth === closestWall.offsetLeft) {
+    } else if (closestWall !== undefined && element.offsetLeft + element.offsetWidth + distance >= closestWall.offsetLeft) {
+        element.style.left = (closestWall.offsetLeft - element.offsetWidth) + "px";
+    } else {
+        if (element.offsetLeft + element.offsetWidth >= 1600) {
+            element.style.left = 0 + distance + "px";
+        } else {
+            element.style.left = element.offsetLeft + distance + "px";
+        }
+    }
+}
+
+function animateMoveLeft(element: HTMLElement, closestWall: HTMLElement | undefined, distance: number): void {
     if (closestWall !== undefined && element.offsetLeft === closestWall.offsetLeft + closestWall.offsetWidth) {
     } else if (closestWall !== undefined && element.offsetLeft + distance <= closestWall.offsetLeft + closestWall.offsetWidth) {
        element.style.left = closestWall.offsetLeft + closestWall.offsetWidth + "px";
@@ -73,6 +101,24 @@ function animateMoveLeft(element: HTMLElement, closestWall: HTMLElement, distanc
         } else {
             element.style.left = element.offsetLeft + distance + "px";
         }
+    }
+}
+
+function animateFreeFalling(element: HTMLElement, closestPlatform: HTMLElement | undefined, distance: number): void {
+    if (closestPlatform !== undefined && element.offsetTop + element.offsetHeight === closestPlatform.offsetTop) {
+    } else if (closestPlatform !== undefined && element.offsetTop + element.offsetHeight + distance >= closestPlatform.offsetTop) {
+        element.style.top = closestPlatform.offsetTop - element.offsetHeight + "px";
+    } else if (closestPlatform !== undefined) {
+        element.style.top = element.offsetTop + distance + "px";
+    }
+}
+
+function animateRising(element: HTMLElement, closestPlatform: HTMLElement | undefined, distance: number): void {
+    if (closestPlatform !== undefined && element.offsetTop === closestPlatform.offsetTop + closestPlatform.offsetHeight) {
+    } else if (closestPlatform !== undefined && element.offsetTop + distance <= closestPlatform.offsetTop + closestPlatform.offsetHeight) {
+        element.style.top = closestPlatform.offsetTop + closestPlatform.offsetHeight + "px";
+    } else {
+        element.style.top = Math.max(0, element.offsetTop + distance) + "px";
     }
 }
 
@@ -201,33 +247,13 @@ class Bear {
             }
 
             if (dy > 0) {
-                let closestPlatform;
-                for (i = 0, length = platforms.length; i < length; i++) {
-                    if (platforms[i].offsetLeft < self.element.offsetLeft + self.element.offsetWidth && platforms[i].offsetLeft + platforms[i].offsetWidth > self.element.offsetLeft) {
-                        if (platforms[i].offsetTop >= self.element.offsetTop + self.element.offsetHeight) {
-                            if (closestPlatform === undefined || platforms[i].offsetTop < closestPlatform.offsetTop) {
-                                closestPlatform = platforms[i];
-                            }
-                        }
-                    }
-                }
-                if (closestPlatform !== undefined && self.element.offsetTop + self.element.offsetHeight === closestPlatform.offsetTop) {
-                } else if (closestPlatform !== undefined && self.element.offsetTop + self.element.offsetHeight + 8 >= closestPlatform.offsetTop) {
-                    self.element.style.top = closestPlatform.offsetTop - self.element.offsetHeight + "px";
-                } else if (closestPlatform !== undefined) {
-                    self.element.style.top = self.element.offsetTop + 8 + "px";
-                }
+                animateFreeFalling(
+                    self.element,
+                    getClosestPlatformBelow(self.element),
+                    8
+                );
             } else {
-                let closestPlatform;
-                for (i = 0, length = platforms.length; i < length; i++) {
-                    if (platforms[i].offsetLeft < self.element.offsetLeft + self.element.offsetWidth && platforms[i].offsetLeft + platforms[i].offsetWidth > self.element.offsetLeft) {
-                        if (platforms[i].offsetTop + platforms[i].offsetHeight <= self.element.offsetTop) {
-                            if (closestPlatform === undefined || platforms[i].offsetTop + platforms[i].offsetHeight > closestPlatform.offsetTop + closestPlatform.offsetHeight) {
-                                closestPlatform = platforms[i];
-                            }
-                        }
-                    }
-                }
+                let closestPlatform = getClosestPlatformAbove(self.element);
                 if (closestPlatform !== undefined && self.element.offsetTop === closestPlatform.offsetTop + closestPlatform.offsetHeight) {
                     clearTimeout(jumpTimeout);
                     dy = 8;
