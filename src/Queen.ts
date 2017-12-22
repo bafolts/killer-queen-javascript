@@ -7,6 +7,14 @@ class Queen {
     constructor(public element: HTMLElement, private className: string, public side: Side, private gamepadIndex: number) {
         this.setupControls();
         requestAnimationFrame(this.animate.bind(this));
+        this.addSword();
+    }
+
+    private addSword(): void {
+        let sword = document.createElement("div");
+        sword.className = "sword";
+        sword.appendChild(document.createElement("div"));
+        this.element.appendChild(sword);
     }
 
     private animate(): void {

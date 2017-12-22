@@ -445,7 +445,14 @@ var Queen = /** @class */ (function () {
         this.flapping = false;
         this.setupControls();
         requestAnimationFrame(this.animate.bind(this));
+        this.addSword();
     }
+    Queen.prototype.addSword = function () {
+        var sword = document.createElement("div");
+        sword.className = "sword";
+        sword.appendChild(document.createElement("div"));
+        this.element.appendChild(sword);
+    };
     Queen.prototype.animate = function () {
         var change = this.dx;
         var self = this;
