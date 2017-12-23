@@ -155,7 +155,12 @@ class Bear {
             return;
         }
     }
-  
+ 
+    public killedBySword(): void {
+        clearInterval(this.bearLoop);
+        this.element.parentNode.removeChild(this.element);
+    }
+
     private changeToWarrior(): void {
         clearInterval(this.bearLoop);
         this.element.parentNode.removeChild(this.element);
@@ -184,7 +189,7 @@ class Bear {
         }
     }
 
-    constructor(public element: HTMLElement, public className: string, color: Side, gamepadIndex: number) {
+    constructor(public element: HTMLElement, public className: string, public side: Side, gamepadIndex: number) {
 
         element.className = "bear " + className;
 

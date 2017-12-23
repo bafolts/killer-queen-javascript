@@ -9,7 +9,7 @@
     left: 40px;
     width: 5px;
     height: 100px;
-    transform: rotate(90deg);
+    transform: rotate(0deg);
 }
 .sword > div {
     position: absolute;

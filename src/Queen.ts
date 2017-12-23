@@ -4,6 +4,9 @@ class Queen {
     private dy: number = 8;
     private swinging: boolean = false;
     private flapping: boolean = false;
+    private headingLeft: boolean = false;
+    private swordElement: HTMLElement;
+    private killedBearDuringSwing: boolean = false;
     constructor(public element: HTMLElement, private className: string, public side: Side, private gamepadIndex: number) {
         this.setupControls();
         requestAnimationFrame(this.animate.bind(this));
@@ -15,11 +18,40 @@ class Queen {
         sword.className = "sword";
         sword.appendChild(document.createElement("div"));
         this.element.appendChild(sword);
+        this.swordElement = sword;
+    }
+
+    private swing(): void {
+        this.swinging = true;
+        let self = this;
+        let angle: number = 0;
+        let doSwing = function() {
+            if (angle < 90) {
+                setTimeout(function() {
+                    angle += 10;
+                    self.swordElement.style.transform = "rotate(" + angle + "deg)";
+                    doSwing();
+                }, 25);
+            } else {
+                self.swordElement.style.transform = "rotate(0deg)";
+                setTimeout(function() {
+                    self.swinging = false;
+                    self.killedBearDuringSwing = false;
+                }, 500);
+            }
+        };
+        doSwing();
     }
 
     private animate(): void {
         let change: number = this.dx;
         let self = this;
+        this.headingLeft = this.dx < 0;
+        if (this.headingLeft) {
+            self.swordElement.style.left = "-6px";   
+        } else {
+            self.swordElement.style.left = "40px";
+        }
         if (this.dx > 0) {
             animateMoveRight(
                 this.element,
@@ -49,6 +81,16 @@ class Queen {
         for (let i = 0, length = gates.length; i < length; i++) {
             if (intersects(gates[i].element, self.element)) {
                 gates[i].setSide(self.side);
+            }
+        }
+        for (let i = 0, length = bears.length; i < length; i++) {
+            if (bears[i].side !== self.side && intersects(bears[i].element, self.element) && self.swinging === false) {
+                self.swing();
+                break;
+            } else if (bears[i].side !== self.side && self.killedBearDuringSwing === false && intersects(bears[i].element, self.swordElement) && self.swinging === true) {
+                self.killedBearDuringSwing = true;
+                bears[i].killedBySword();
+                break;
             }
         }
         setTimeout(function() {

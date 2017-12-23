@@ -15,6 +15,7 @@ var ballHolders: Array<BallHolder> = [];
 var balls: Array<Ball> = [];
 var snail: Snail;
 var gates: Array<Gate> = [];
+let bears: Array<Bear> = [];
 
 window.onload = function() {
     walls = document.getElementsByClassName("wall");
@@ -36,14 +37,16 @@ window.onload = function() {
         new Goal(document.getElementById("goal-blue"), Side.BLUE),
         new Goal(document.getElementById("goal-gold"), Side.GOLD)
     );
-    new Bear(document.getElementById("bear1"), "one", Side.BLUE, 0);
-    new Bear(document.getElementById("bear2"), "two", Side.GOLD, 1);
-    new Bear(document.getElementById("bear3"), "three", Side.BLUE, 2);
-    new Bear(document.getElementById("bear4"), "four", Side.BLUE, 3);
-    new Bear(document.getElementById("bear5"), "five", Side.BLUE, 4);
-    new Bear(document.getElementById("bear6"), "six", Side.GOLD, 5);
-    new Bear(document.getElementById("bear7"), "seven", Side.GOLD, 6);
-    new Bear(document.getElementById("bear8"), "eight", Side.GOLD, 7);
+    bears = [
+        new Bear(document.getElementById("bear1"), "one", Side.BLUE, 0),
+        new Bear(document.getElementById("bear2"), "two", Side.GOLD, 1),
+        new Bear(document.getElementById("bear3"), "three", Side.BLUE, 2),
+        new Bear(document.getElementById("bear4"), "four", Side.BLUE, 3),
+        new Bear(document.getElementById("bear5"), "five", Side.BLUE, 4),
+        new Bear(document.getElementById("bear6"), "six", Side.GOLD, 5),
+        new Bear(document.getElementById("bear7"), "seven", Side.GOLD, 6),
+        new Bear(document.getElementById("bear8"), "eight", Side.GOLD, 7)
+    ];
     new Queen(document.getElementById("queen1"), "one", Side.BLUE, 8);
 }
 

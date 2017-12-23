@@ -145,9 +145,10 @@ function animateRising(element, closestPlatform, distance) {
     }
 }
 var Bear = /** @class */ (function () {
-    function Bear(element, className, color, gamepadIndex) {
+    function Bear(element, className, side, gamepadIndex) {
         this.element = element;
         this.className = className;
+        this.side = side;
         element.className = "bear " + className;
         var dx = 0;
         var dy = 8;
@@ -336,6 +337,10 @@ var Bear = /** @class */ (function () {
             return;
         }
     };
+    Bear.prototype.killedBySword = function () {
+        clearInterval(this.bearLoop);
+        this.element.parentNode.removeChild(this.element);
+    };
     Bear.prototype.changeToWarrior = function () {
         clearInterval(this.bearLoop);
         this.element.parentNode.removeChild(this.element);
@@ -443,6 +448,8 @@ var Queen = /** @class */ (function () {
         this.dy = 8;
         this.swinging = false;
         this.flapping = false;
+        this.headingLeft = false;
+        this.killedBearDuringSwing = false;
         this.setupControls();
         requestAnimationFrame(this.animate.bind(this));
         this.addSword();
@@ -452,10 +459,40 @@ var Queen = /** @class */ (function () {
         sword.className = "sword";
         sword.appendChild(document.createElement("div"));
         this.element.appendChild(sword);
+        this.swordElement = sword;
+    };
+    Queen.prototype.swing = function () {
+        this.swinging = true;
+        var self = this;
+        var angle = 0;
+        var doSwing = function () {
+            if (angle < 90) {
+                setTimeout(function () {
+                    angle += 10;
+                    self.swordElement.style.transform = "rotate(" + angle + "deg)";
+                    doSwing();
+                }, 25);
+            }
+            else {
+                self.swordElement.style.transform = "rotate(0deg)";
+                setTimeout(function () {
+                    self.swinging = false;
+                    self.killedBearDuringSwing = false;
+                }, 500);
+            }
+        };
+        doSwing();
     };
     Queen.prototype.animate = function () {
         var change = this.dx;
         var self = this;
+        this.headingLeft = this.dx < 0;
+        if (this.headingLeft) {
+            self.swordElement.style.left = "-6px";
+        }
+        else {
+            self.swordElement.style.left = "40px";
+        }
         if (this.dx > 0) {
             animateMoveRight(this.element, getClosestWallToRight(this.element), this.dx);
         }
@@ -471,6 +508,17 @@ var Queen = /** @class */ (function () {
         for (var i = 0, length_7 = gates.length; i < length_7; i++) {
             if (intersects(gates[i].element, self.element)) {
                 gates[i].setSide(self.side);
+            }
+        }
+        for (var i = 0, length_8 = bears.length; i < length_8; i++) {
+            if (bears[i].side !== self.side && intersects(bears[i].element, self.element) && self.swinging === false) {
+                self.swing();
+                break;
+            }
+            else if (bears[i].side !== self.side && self.killedBearDuringSwing === false && intersects(bears[i].element, self.swordElement) && self.swinging === true) {
+                self.killedBearDuringSwing = true;
+                bears[i].killedBySword();
+                break;
             }
         }
         setTimeout(function () {
@@ -541,11 +589,27 @@ var Snail = /** @class */ (function () {
     };
     return Snail;
 }());
+function realTop(item) {
+    var top = item.offsetTop;
+    while (item.parentElement) {
+        top += item.parentElement.offsetTop;
+        item = item.parentElement;
+    }
+    return top;
+}
+function realLeft(item) {
+    var left = item.offsetLeft;
+    while (item.parentElement) {
+        left += item.parentElement.offsetLeft;
+        item = item.parentElement;
+    }
+    return left;
+}
 function intersects(item1, item2) {
-    return !((item1.offsetLeft + item1.offsetWidth) < item2.offsetLeft ||
-        item1.offsetLeft > (item2.offsetLeft + item2.offsetWidth) ||
-        (item1.offsetTop + item1.offsetHeight) < item2.offsetTop ||
-        item1.offsetTop > (item2.offsetTop + item2.offsetHeight));
+    return !((realLeft(item1) + item1.offsetWidth) < realLeft(item2) ||
+        realLeft(item1) > (realLeft(item2) + item2.offsetWidth) ||
+        (realTop(item1) + item1.offsetHeight) < realTop(item2) ||
+        realTop(item1) > (realTop(item2) + item2.offsetHeight));
 }
 /// <reference path="Ball.ts" />
 /// <reference path="BallHolder.ts" />
@@ -562,6 +626,7 @@ var ballHolders = [];
 var balls = [];
 var snail;
 var gates = [];
+var bears = [];
 window.onload = function () {
     walls = document.getElementsByClassName("wall");
     platforms = document.getElementsByClassName("platform");
@@ -578,13 +643,15 @@ window.onload = function () {
         gates.push(new Gate(gateElements[i]));
     }
     snail = new Snail(document.getElementById("snail"), new Goal(document.getElementById("goal-blue"), Side.BLUE), new Goal(document.getElementById("goal-gold"), Side.GOLD));
-    new Bear(document.getElementById("bear1"), "one", Side.BLUE, 0);
-    new Bear(document.getElementById("bear2"), "two", Side.GOLD, 1);
-    new Bear(document.getElementById("bear3"), "three", Side.BLUE, 2);
-    new Bear(document.getElementById("bear4"), "four", Side.BLUE, 3);
-    new Bear(document.getElementById("bear5"), "five", Side.BLUE, 4);
-    new Bear(document.getElementById("bear6"), "six", Side.GOLD, 5);
-    new Bear(document.getElementById("bear7"), "seven", Side.GOLD, 6);
-    new Bear(document.getElementById("bear8"), "eight", Side.GOLD, 7);
+    bears = [
+        new Bear(document.getElementById("bear1"), "one", Side.BLUE, 0),
+        new Bear(document.getElementById("bear2"), "two", Side.GOLD, 1),
+        new Bear(document.getElementById("bear3"), "three", Side.BLUE, 2),
+        new Bear(document.getElementById("bear4"), "four", Side.BLUE, 3),
+        new Bear(document.getElementById("bear5"), "five", Side.BLUE, 4),
+        new Bear(document.getElementById("bear6"), "six", Side.GOLD, 5),
+        new Bear(document.getElementById("bear7"), "seven", Side.GOLD, 6),
+        new Bear(document.getElementById("bear8"), "eight", Side.GOLD, 7)
+    ];
     new Queen(document.getElementById("queen1"), "one", Side.BLUE, 8);
 };
