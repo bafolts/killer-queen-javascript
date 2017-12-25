@@ -16,6 +16,7 @@ var balls: Array<Ball> = [];
 var snail: Snail;
 var gates: Array<Gate> = [];
 let bears: Array<Bear> = [];
+let queens: Array<Queen> = [];
 
 window.onload = function() {
     walls = document.getElementsByClassName("wall");
@@ -47,6 +48,9 @@ window.onload = function() {
         new Bear(document.getElementById("bear7"), "seven", Side.GOLD, 6),
         new Bear(document.getElementById("bear8"), "eight", Side.GOLD, 7)
     ];
-    new Queen(document.getElementById("queen1"), "one", Side.BLUE, 8);
+    queens = [
+        new Queen(document.getElementById("queen1"), "one", Side.BLUE, 8),
+        new Queen(document.getElementById("queen2"), "two", Side.GOLD, 9)
+    ];
 }
 

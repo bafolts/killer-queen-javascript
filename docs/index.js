@@ -144,6 +144,22 @@ function animateRising(element, closestPlatform, distance) {
         element.style.top = Math.max(0, element.offsetTop + distance) + "px";
     }
 }
+function addExplodingParticleForDeath(element) {
+    var particle = document.createElement("div");
+    particle.className = "particle";
+    particle.style.left = element.offsetLeft + (element.offsetWidth / 2) + "px";
+    particle.style.top = element.offsetTop + (element.offsetHeight / 2) + "px";
+    document.getElementById("stage").appendChild(particle);
+    setTimeout(function () {
+        particle.style.opacity = "0";
+        particle.style.transition = "0.75s";
+        particle.style.transitionTimingFunction = "ease";
+        particle.style.transform = "translate(" + ((100 * Math.cos(Math.random() * Math.PI * 2)) | 0) + "px, " + ((100 * Math.sin(Math.random() * Math.PI * 2)) | 0) + "px)";
+        setTimeout(function () {
+            particle.parentNode.removeChild(particle);
+        }, 750);
+    }, 0);
+}
 var Bear = /** @class */ (function () {
     function Bear(element, className, side, gamepadIndex) {
         this.element = element;
@@ -339,6 +355,9 @@ var Bear = /** @class */ (function () {
     };
     Bear.prototype.killedBySword = function () {
         clearInterval(this.bearLoop);
+        for (var i = 0; i < 100; i++) {
+            addExplodingParticleForDeath(this.element);
+        }
         this.element.parentNode.removeChild(this.element);
     };
     Bear.prototype.changeToWarrior = function () {
@@ -448,7 +467,7 @@ var Queen = /** @class */ (function () {
         this.dy = 8;
         this.swinging = false;
         this.flapping = false;
-        this.headingLeft = false;
+        this.swordFacingRight = true;
         this.killedBearDuringSwing = false;
         this.setupControls();
         requestAnimationFrame(this.animate.bind(this));
@@ -469,12 +488,22 @@ var Queen = /** @class */ (function () {
             if (angle < 90) {
                 setTimeout(function () {
                     angle += 10;
-                    self.swordElement.style.transform = "rotate(" + angle + "deg)";
+                    if (self.swordFacingRight) {
+                        self.swordElement.style.transform = "rotate(" + (angle + 90) + "deg)";
+                    }
+                    else {
+                        self.swordElement.style.transform = "rotate(" + (-90 - angle) + "deg)";
+                    }
                     doSwing();
                 }, 25);
             }
             else {
-                self.swordElement.style.transform = "rotate(0deg)";
+                if (self.swordFacingRight) {
+                    self.swordElement.style.transform = "rotate(90deg)";
+                }
+                else {
+                    self.swordElement.style.transform = "rotate(-90deg)";
+                }
                 setTimeout(function () {
                     self.swinging = false;
                     self.killedBearDuringSwing = false;
@@ -486,12 +515,19 @@ var Queen = /** @class */ (function () {
     Queen.prototype.animate = function () {
         var change = this.dx;
         var self = this;
-        this.headingLeft = this.dx < 0;
-        if (this.headingLeft) {
-            self.swordElement.style.left = "-6px";
+        if (this.dx > 0) {
+            this.swordFacingRight = true;
+        }
+        else if (this.dx < 0) {
+            this.swordFacingRight = false;
+        }
+        if (!self.swordFacingRight) {
+            self.swordElement.style.left = "0px";
+            self.swordElement.style.transform = "rotate(-90deg)";
         }
         else {
-            self.swordElement.style.left = "40px";
+            self.swordElement.style.left = "35px";
+            self.swordElement.style.transform = "rotate(90deg)";
         }
         if (this.dx > 0) {
             animateMoveRight(this.element, getClosestWallToRight(this.element), this.dx);
@@ -627,6 +663,7 @@ var balls = [];
 var snail;
 var gates = [];
 var bears = [];
+var queens = [];
 window.onload = function () {
     walls = document.getElementsByClassName("wall");
     platforms = document.getElementsByClassName("platform");
@@ -653,5 +690,8 @@ window.onload = function () {
         new Bear(document.getElementById("bear7"), "seven", Side.GOLD, 6),
         new Bear(document.getElementById("bear8"), "eight", Side.GOLD, 7)
     ];
-    new Queen(document.getElementById("queen1"), "one", Side.BLUE, 8);
+    queens = [
+        new Queen(document.getElementById("queen1"), "one", Side.BLUE, 8),
+        new Queen(document.getElementById("queen2"), "two", Side.GOLD, 9)
+    ];
 };

@@ -4,8 +4,8 @@ class Queen {
     private dy: number = 8;
     private swinging: boolean = false;
     private flapping: boolean = false;
-    private headingLeft: boolean = false;
     private swordElement: HTMLElement;
+    private swordFacingRight: boolean = true;
     private killedBearDuringSwing: boolean = false;
     constructor(public element: HTMLElement, private className: string, public side: Side, private gamepadIndex: number) {
         this.setupControls();
@@ -29,11 +29,19 @@ class Queen {
             if (angle < 90) {
                 setTimeout(function() {
                     angle += 10;
-                    self.swordElement.style.transform = "rotate(" + angle + "deg)";
+                    if (self.swordFacingRight) {
+                        self.swordElement.style.transform = "rotate(" + (angle + 90 ) + "deg)";
+                    } else {
+                        self.swordElement.style.transform = "rotate(" + (-90 - angle) + "deg)";
+                    }
                     doSwing();
                 }, 25);
             } else {
-                self.swordElement.style.transform = "rotate(0deg)";
+                if (self.swordFacingRight) {
+                    self.swordElement.style.transform = "rotate(90deg)";
+                } else {
+                    self.swordElement.style.transform = "rotate(-90deg)";
+                }
                 setTimeout(function() {
                     self.swinging = false;
                     self.killedBearDuringSwing = false;
@@ -46,11 +54,17 @@ class Queen {
     private animate(): void {
         let change: number = this.dx;
         let self = this;
-        this.headingLeft = this.dx < 0;
-        if (this.headingLeft) {
-            self.swordElement.style.left = "-6px";   
+        if (this.dx > 0) {
+            this.swordFacingRight = true;
+        } else if (this.dx < 0) {
+            this.swordFacingRight = false;
+        }
+        if (!self.swordFacingRight) {
+            self.swordElement.style.left = "0px";
+            self.swordElement.style.transform = "rotate(-90deg)";
         } else {
-            self.swordElement.style.left = "40px";
+            self.swordElement.style.left = "35px";
+            self.swordElement.style.transform = "rotate(90deg)";
         }
         if (this.dx > 0) {
             animateMoveRight(

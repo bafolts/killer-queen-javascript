@@ -122,6 +122,23 @@ function animateRising(element: HTMLElement, closestPlatform: HTMLElement | unde
     }
 }
 
+function addExplodingParticleForDeath(element: HTMLElement): void {
+    let particle = document.createElement("div");
+    particle.className = "particle";
+    particle.style.left = element.offsetLeft + (element.offsetWidth / 2) + "px";
+    particle.style.top = element.offsetTop + (element.offsetHeight / 2) + "px";
+    document.getElementById("stage").appendChild(particle);
+    setTimeout(function() {
+        particle.style.opacity = "0";
+        particle.style.transition = "0.75s";
+        particle.style.transitionTimingFunction = "ease";
+        particle.style.transform = "translate(" + ((100 * Math.cos(Math.random() * Math.PI * 2)) | 0) + "px, " + ((100 * Math.sin(Math.random() * Math.PI * 2)) | 0) + "px)";
+        setTimeout(function() {
+            particle.parentNode.removeChild(particle);
+        }, 750);
+    }, 0);
+}
+
 class Bear {
 
     private game: number;
@@ -158,6 +175,9 @@ class Bear {
  
     public killedBySword(): void {
         clearInterval(this.bearLoop);
+        for (var i = 0; i < 100; i++) {
+            addExplodingParticleForDeath(this.element);
+        }
         this.element.parentNode.removeChild(this.element);
     }
 
