@@ -11,6 +11,7 @@ class Queen {
         this.setupControls();
         requestAnimationFrame(this.animate.bind(this));
         this.addSword();
+        element.className += " " + className;
     }
 
     private addSword(): void {
@@ -67,17 +68,21 @@ class Queen {
             self.swordElement.style.transform = "rotate(90deg)";
         }
         if (this.dx > 0) {
+            self.element.className = "queen " + self.className + " right";
             animateMoveRight(
                 this.element,
                 getClosestWallToRight(this.element),
                 this.dx
             );
-        } else {
+        } else if (this.dx < 0) {
+            self.element.className = "queen " + self.className + " left";
             animateMoveLeft(
                 this.element,
                 getClosestWallToLeft(this.element),
                 this.dx
             );
+        } else if (this.dy <= 8) {
+            self.element.className = "queen " + self.className;
         }
         if (this.dy > 0) {
             animateFreeFalling(
@@ -107,9 +112,26 @@ class Queen {
                 break;
             }
         }
+        for (let i = 0, length = queens.length; i < length; i++) {
+            if (queens[i] !== self && intersects(queens[i].element, self.element) && self.swinging === false) {
+                self.swing();
+                break;
+            } else if (queens[i] !== self && self.killedBearDuringSwing === false && intersects(queens[i].element, self.element) && self.swinging === true) {
+                self.killedBearDuringSwing = true;
+                queens[i].killedBySword();
+                break;
+            }
+        }
         setTimeout(function() {
             requestAnimationFrame(self.animate.bind(self));
         }, 50);
+    }
+
+    public killedBySword(): void {
+        for (var i = 0; i < 100; i++) {
+            addExplodingParticleForDeath(this.element);
+        }
+        this.element.parentNode.removeChild(this.element);
     }
 
     private setupControls(): void {
@@ -122,6 +144,7 @@ class Queen {
             }
             if (e.keyCode === 40) {
                 self.dy = 8;
+                self.element.className = "queen " + self.className;
             }
         });
 
@@ -131,10 +154,11 @@ class Queen {
             } else if (e.keyCode === 39) {
                 self.dx = 8;
             } else if (e.keyCode === 40) {
-                self.dy = 16;
+                self.dy = 32;
+                self.element.className = "queen " + self.className + " diving";
             } else if (e.keyCode === 32 && self.flapping === false) {
                 self.flapping = true;
-                self.dy = -4;
+                self.dy = -8;
                 setTimeout(function() {
                     self.dy = 8;
                     self.flapping = false;

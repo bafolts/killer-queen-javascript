@@ -175,7 +175,7 @@ class Bear {
  
     public killedBySword(): void {
         clearInterval(this.bearLoop);
-        for (var i = 0; i < 100; i++) {
+        for (var i = 0; i < 20; i++) {
             addExplodingParticleForDeath(this.element);
         }
         this.element.parentNode.removeChild(this.element);

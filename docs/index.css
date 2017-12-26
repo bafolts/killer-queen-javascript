@@ -34,7 +34,24 @@
     width: 40px;
     height: 60px;
     position: absolute;
-    border: 1px solid black;
+    background-size: 430px;
+    background-image: url(./queen.png);
+    background-position: 0px;
+}
+.queen.diving {
+    background-position: -320px;
+}
+.queen.diving .sword {
+    display: none;
+}
+.queen.one {
+    background-image: url(./queenBlue.png);
+}
+.queen.left {
+    background-position: -65px;
+}
+.queen.right {
+    background-position: -190px;
 }
 .bear {
     width: 25px;
