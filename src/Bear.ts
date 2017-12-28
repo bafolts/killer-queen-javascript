@@ -143,6 +143,7 @@ class Bear {
 
     private game: number;
     private bearLoop: number;
+    private buttonChecker: number;
 
     private checkForWin(): void {
         var goldWin = true;
@@ -181,6 +182,16 @@ class Bear {
         this.element.parentNode.removeChild(this.element);
     }
 
+    public destroy(): void {
+        clearInterval(this.bearLoop);
+        clearTimeout(this.snailAnimator);
+        cancelAnimationFrame(this.snailAnimator);
+        cancelAnimationFrame(this.buttonChecker);
+        if (this.element.parentNode) {
+            this.element.parentNode.removeChild(this.element);
+        }
+    }
+
     private changeToWarrior(): void {
         clearInterval(this.bearLoop);
         this.element.parentNode.removeChild(this.element);
@@ -208,6 +219,8 @@ class Bear {
             this.element.className = nextClass;
         }
     }
+
+    private snailAnimator: number;
 
     constructor(public element: HTMLElement, public className: string, public side: Side, gamepadIndex: number) {
 
@@ -237,12 +250,12 @@ class Bear {
                 snail.checkForWin();
                 self.element.style.left = snail.element.offsetLeft + (snail.element.offsetWidth / 2) - (self.element.offsetWidth / 2) + "px";
             }
-            setTimeout(function() {
-                requestAnimationFrame(animateSnail);
+            this.snailAnimator = setTimeout(function() {
+                self.snailAnimator = requestAnimationFrame(animateSnail);
             }, 100);
         }
 
-        requestAnimationFrame(animateSnail);
+        self.snailAnimator = requestAnimationFrame(animateSnail);
 
         this.bearLoop = setInterval(function() {
             let i: number;
@@ -311,7 +324,7 @@ class Bear {
                 ballInPocession.element.style.left = self.element.offsetLeft + ((self.element.offsetWidth / 2) - (ballInPocession.element.offsetWidth / 2)) + "px";
 
                 for (i = 0, length = gates.length; i < length; i++) {
-                    if (gates[i].isOpen === true && intersects(self.element, gates[i].element)) {
+                    if (gates[i].isOpen === true && gates[i].side === self.side && intersects(self.element, gates[i].element)) {
                         ballInPocession.removeFromPlay();
                         ballInPocession = undefined;
                         self.changeToWarrior();
@@ -378,9 +391,9 @@ class Bear {
                     canStopJump();
                 }
             }
-            window.requestAnimationFrame(checkButtons);
+            self.buttonChecker = window.requestAnimationFrame(checkButtons);
         }
 
-        window.requestAnimationFrame(checkButtons);
+        self.buttonChecker = window.requestAnimationFrame(checkButtons);
 }
 }

@@ -7,13 +7,22 @@ class Queen {
     private swordElement: HTMLElement;
     private swordFacingRight: boolean = true;
     private killedBearDuringSwing: boolean = false;
+    private animator: number;
+    private buttonChecker: number;
     constructor(public element: HTMLElement, private className: string, public side: Side, private gamepadIndex: number) {
-        this.setupControls();
-        requestAnimationFrame(this.animate.bind(this));
+        this.buttonChecker = requestAnimationFrame(this.checkButtons.bind(this));
+        this.animator = requestAnimationFrame(this.animate.bind(this));
         this.addSword();
         element.className += " " + className;
     }
-
+    public destroy(): void {
+        if (this.element.parentNode) {
+            this.element.parentNode.removeChild(this.element);
+        }
+        clearTimeout(this.animator);
+        cancelAnimationFrame(this.animator);
+        cancelAnimationFrame(this.buttonChecker);
+    }
     private addSword(): void {
         let sword = document.createElement("div");
         sword.className = "sword";
@@ -122,8 +131,8 @@ class Queen {
                 break;
             }
         }
-        setTimeout(function() {
-            requestAnimationFrame(self.animate.bind(self));
+        this.animator = setTimeout(function() {
+            self.animator = requestAnimationFrame(self.animate.bind(self));
         }, 50);
     }
 
@@ -134,41 +143,32 @@ class Queen {
         this.element.parentNode.removeChild(this.element);
     }
 
-    private setupControls(): void {
-
+    private checkButtons(): void {
+        let gamepad = window.navigator.getGamepads()[this.gamepadIndex];
         let self = this;
-
-        document.addEventListener("keyup", function(e) {
-            if (e.keyCode === 37 || e.keyCode === 39) {
-                self.dx = 0;
+        if (gamepad) {
+            this.dx = gamepad.axes[0] * 5;
+            if (gamepad.axes[1] > 0) {
+                this.dy = 32;
+                this.element.className = "queen " + this.className + " diving";
+            } else if (this.dy === 32) {
+                this.dy = 8;
+                this.element.className = "queen " + this.className;
             }
-            if (e.keyCode === 40) {
-                self.dy = 8;
-                self.element.className = "queen " + self.className;
+            for (var i = 0; i < gamepad.buttons.length; i++) {
+                if (gamepad.buttons[i].pressed) {
+                    if (this.flapping === false) {
+                        this.flapping = true;
+                        this.dy = -8;
+                        setTimeout(function() {
+                            self.dy = 8;
+                            self.flapping = false;
+                        }, 400);
+                    }
+                    break;
+                }
             }
-        });
-
-        document.addEventListener("keydown", function(e) {
-            if (e.keyCode === 37) {
-                self.dx = -8;
-            } else if (e.keyCode === 39) {
-                self.dx = 8;
-            } else if (e.keyCode === 40) {
-                self.dy = 32;
-                self.element.className = "queen " + self.className + " diving";
-            } else if (e.keyCode === 32 && self.flapping === false) {
-                self.flapping = true;
-                self.dy = -8;
-                setTimeout(function() {
-                    self.dy = 8;
-                    self.flapping = false;
-                }, 400);
-            }
-            // 32 = spacebar
-            // 37 = left
-            // 39 = right
-            // 38 = up
-            // 40 = down
-        });
+        }
+        this.buttonChecker = window.requestAnimationFrame(this.checkButtons.bind(this));
     }
 }

@@ -6,6 +6,10 @@ class BallHolder {
         this.side = this.element.offsetLeft < 800 ? Side.BLUE : Side.GOLD;
     }
 
+    public destroy(): void {
+        this.element.parentNode.removeChild(this.element);
+    }
+
     public occupy(ball: Ball): void {
         this.occupied = true;
         this.element.className += " occupied";

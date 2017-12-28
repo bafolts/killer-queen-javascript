@@ -7,6 +7,11 @@ var Ball = /** @class */ (function () {
         this.element.parentNode.removeChild(this.element);
         balls.splice(balls.indexOf(this), 1);
     };
+    Ball.prototype.destroy = function () {
+        if (this.element.parentNode) {
+            this.element.parentNode.removeChild(this.element);
+        }
+    };
     return Ball;
 }());
 var BallHolder = /** @class */ (function () {
@@ -15,6 +20,9 @@ var BallHolder = /** @class */ (function () {
         this.occupied = false;
         this.side = this.element.offsetLeft < 800 ? Side.BLUE : Side.GOLD;
     }
+    BallHolder.prototype.destroy = function () {
+        this.element.parentNode.removeChild(this.element);
+    };
     BallHolder.prototype.occupy = function (ball) {
         this.occupied = true;
         this.element.className += " occupied";
@@ -191,11 +199,11 @@ var Bear = /** @class */ (function () {
                 snail.checkForWin();
                 self.element.style.left = snail.element.offsetLeft + (snail.element.offsetWidth / 2) - (self.element.offsetWidth / 2) + "px";
             }
-            setTimeout(function () {
-                requestAnimationFrame(animateSnail);
+            this.snailAnimator = setTimeout(function () {
+                self.snailAnimator = requestAnimationFrame(animateSnail);
             }, 100);
         }
-        requestAnimationFrame(animateSnail);
+        self.snailAnimator = requestAnimationFrame(animateSnail);
         this.bearLoop = setInterval(function () {
             var i;
             var length;
@@ -260,7 +268,7 @@ var Bear = /** @class */ (function () {
                 ballInPocession.element.style.top = self.element.offsetTop - ballInPocession.element.offsetHeight + "px";
                 ballInPocession.element.style.left = self.element.offsetLeft + ((self.element.offsetWidth / 2) - (ballInPocession.element.offsetWidth / 2)) + "px";
                 for (i = 0, length = gates.length; i < length; i++) {
-                    if (gates[i].isOpen === true && intersects(self.element, gates[i].element)) {
+                    if (gates[i].isOpen === true && gates[i].side === self.side && intersects(self.element, gates[i].element)) {
                         ballInPocession.removeFromPlay();
                         ballInPocession = undefined;
                         self.changeToWarrior();
@@ -323,9 +331,9 @@ var Bear = /** @class */ (function () {
                     canStopJump();
                 }
             }
-            window.requestAnimationFrame(checkButtons);
+            self.buttonChecker = window.requestAnimationFrame(checkButtons);
         }
-        window.requestAnimationFrame(checkButtons);
+        self.buttonChecker = window.requestAnimationFrame(checkButtons);
     }
     Bear.prototype.checkForWin = function () {
         var goldWin = true;
@@ -359,6 +367,15 @@ var Bear = /** @class */ (function () {
             addExplodingParticleForDeath(this.element);
         }
         this.element.parentNode.removeChild(this.element);
+    };
+    Bear.prototype.destroy = function () {
+        clearInterval(this.bearLoop);
+        clearTimeout(this.snailAnimator);
+        cancelAnimationFrame(this.snailAnimator);
+        cancelAnimationFrame(this.buttonChecker);
+        if (this.element.parentNode) {
+            this.element.parentNode.removeChild(this.element);
+        }
     };
     Bear.prototype.changeToWarrior = function () {
         clearInterval(this.bearLoop);
@@ -423,6 +440,9 @@ var Gate = /** @class */ (function () {
             }, 250);
         }, 250);
     };
+    Gate.prototype.destroy = function () {
+        this.element.parentNode.removeChild(this.element);
+    };
     Gate.prototype.setSide = function (side) {
         this.side = side;
         if (this.side === Side.BLUE) {
@@ -469,11 +489,19 @@ var Queen = /** @class */ (function () {
         this.flapping = false;
         this.swordFacingRight = true;
         this.killedBearDuringSwing = false;
-        this.setupControls();
-        requestAnimationFrame(this.animate.bind(this));
+        this.buttonChecker = requestAnimationFrame(this.checkButtons.bind(this));
+        this.animator = requestAnimationFrame(this.animate.bind(this));
         this.addSword();
         element.className += " " + className;
     }
+    Queen.prototype.destroy = function () {
+        if (this.element.parentNode) {
+            this.element.parentNode.removeChild(this.element);
+        }
+        clearTimeout(this.animator);
+        cancelAnimationFrame(this.animator);
+        cancelAnimationFrame(this.buttonChecker);
+    };
     Queen.prototype.addSword = function () {
         var sword = document.createElement("div");
         sword.className = "sword";
@@ -574,8 +602,8 @@ var Queen = /** @class */ (function () {
                 break;
             }
         }
-        setTimeout(function () {
-            requestAnimationFrame(self.animate.bind(self));
+        this.animator = setTimeout(function () {
+            self.animator = requestAnimationFrame(self.animate.bind(self));
         }, 50);
     };
     Queen.prototype.killedBySword = function () {
@@ -584,42 +612,34 @@ var Queen = /** @class */ (function () {
         }
         this.element.parentNode.removeChild(this.element);
     };
-    Queen.prototype.setupControls = function () {
+    Queen.prototype.checkButtons = function () {
+        var gamepad = window.navigator.getGamepads()[this.gamepadIndex];
         var self = this;
-        document.addEventListener("keyup", function (e) {
-            if (e.keyCode === 37 || e.keyCode === 39) {
-                self.dx = 0;
+        if (gamepad) {
+            this.dx = gamepad.axes[0] * 5;
+            if (gamepad.axes[1] > 0) {
+                this.dy = 32;
+                this.element.className = "queen " + this.className + " diving";
             }
-            if (e.keyCode === 40) {
-                self.dy = 8;
-                self.element.className = "queen " + self.className;
+            else if (this.dy === 32) {
+                this.dy = 8;
+                this.element.className = "queen " + this.className;
             }
-        });
-        document.addEventListener("keydown", function (e) {
-            if (e.keyCode === 37) {
-                self.dx = -8;
+            for (var i = 0; i < gamepad.buttons.length; i++) {
+                if (gamepad.buttons[i].pressed) {
+                    if (this.flapping === false) {
+                        this.flapping = true;
+                        this.dy = -8;
+                        setTimeout(function () {
+                            self.dy = 8;
+                            self.flapping = false;
+                        }, 400);
+                    }
+                    break;
+                }
             }
-            else if (e.keyCode === 39) {
-                self.dx = 8;
-            }
-            else if (e.keyCode === 40) {
-                self.dy = 32;
-                self.element.className = "queen " + self.className + " diving";
-            }
-            else if (e.keyCode === 32 && self.flapping === false) {
-                self.flapping = true;
-                self.dy = -8;
-                setTimeout(function () {
-                    self.dy = 8;
-                    self.flapping = false;
-                }, 400);
-            }
-            // 32 = spacebar
-            // 37 = left
-            // 39 = right
-            // 38 = up
-            // 40 = down
-        });
+        }
+        this.buttonChecker = window.requestAnimationFrame(this.checkButtons.bind(this));
     };
     return Queen;
 }());
@@ -698,6 +718,54 @@ function getElement(className, style, id) {
         d.id = id;
     }
     return d;
+}
+function newGame() {
+    while (balls.length) {
+        balls.pop().destroy();
+    }
+    while (gates.length) {
+        gates.pop().destroy();
+    }
+    while (bears.length) {
+        bears.pop().destroy();
+    }
+    while (queens.length) {
+        queens.pop().destroy();
+    }
+    while (ballHolders.length) {
+        ballHolders.pop().destroy();
+    }
+    document.getElementById("stage").innerHTML = "";
+    populateStage(document.getElementById("stage"));
+    walls = document.getElementsByClassName("wall");
+    platforms = document.getElementsByClassName("platform");
+    var ballHolderElements = document.getElementsByClassName("ball-holder");
+    for (var i = 0, length = ballHolderElements.length; i < length; i++) {
+        ballHolders.push(new BallHolder(ballHolderElements[i]));
+    }
+    var ballElements = document.getElementsByClassName("ball");
+    for (var i = 0, length = ballElements.length; i < length; i++) {
+        balls.push(new Ball(ballElements[i]));
+    }
+    var gateElements = document.getElementsByClassName("gate");
+    for (var i = 0, length = gateElements.length; i < length; i++) {
+        gates.push(new Gate(gateElements[i]));
+    }
+    snail = new Snail(document.getElementById("snail"), new Goal(document.getElementById("goal-blue"), Side.BLUE), new Goal(document.getElementById("goal-gold"), Side.GOLD));
+    bears = [
+        new Bear(document.getElementById("bear1"), "one", Side.BLUE, 8),
+        new Bear(document.getElementById("bear2"), "two", Side.GOLD, 1),
+        new Bear(document.getElementById("bear3"), "three", Side.BLUE, 2),
+        new Bear(document.getElementById("bear4"), "four", Side.BLUE, 3),
+        new Bear(document.getElementById("bear5"), "five", Side.BLUE, 4),
+        new Bear(document.getElementById("bear6"), "six", Side.GOLD, 5),
+        new Bear(document.getElementById("bear7"), "seven", Side.GOLD, 6),
+        new Bear(document.getElementById("bear8"), "eight", Side.GOLD, 7)
+    ];
+    queens = [
+        new Queen(document.getElementById("queen1"), "one", Side.BLUE, 0),
+        new Queen(document.getElementById("queen2"), "two", Side.GOLD, 9)
+    ];
 }
 function populateStage(stage) {
     stage.appendChild(getElement("wall", "top:0px;left:0px;height:370px"));
@@ -837,34 +905,5 @@ function populateStage(stage) {
     stage.appendChild(getElement("goal gold", "top:750px;right:20px", "goal-gold"));
 }
 window.onload = function () {
-    populateStage(document.getElementById("stage"));
-    walls = document.getElementsByClassName("wall");
-    platforms = document.getElementsByClassName("platform");
-    var ballHolderElements = document.getElementsByClassName("ball-holder");
-    for (var i = 0, length = ballHolderElements.length; i < length; i++) {
-        ballHolders.push(new BallHolder(ballHolderElements[i]));
-    }
-    var ballElements = document.getElementsByClassName("ball");
-    for (var i = 0, length = ballElements.length; i < length; i++) {
-        balls.push(new Ball(ballElements[i]));
-    }
-    var gateElements = document.getElementsByClassName("gate");
-    for (var i = 0, length = gateElements.length; i < length; i++) {
-        gates.push(new Gate(gateElements[i]));
-    }
-    snail = new Snail(document.getElementById("snail"), new Goal(document.getElementById("goal-blue"), Side.BLUE), new Goal(document.getElementById("goal-gold"), Side.GOLD));
-    bears = [
-        new Bear(document.getElementById("bear1"), "one", Side.BLUE, 0),
-        new Bear(document.getElementById("bear2"), "two", Side.GOLD, 1),
-        new Bear(document.getElementById("bear3"), "three", Side.BLUE, 2),
-        new Bear(document.getElementById("bear4"), "four", Side.BLUE, 3),
-        new Bear(document.getElementById("bear5"), "five", Side.BLUE, 4),
-        new Bear(document.getElementById("bear6"), "six", Side.GOLD, 5),
-        new Bear(document.getElementById("bear7"), "seven", Side.GOLD, 6),
-        new Bear(document.getElementById("bear8"), "eight", Side.GOLD, 7)
-    ];
-    queens = [
-        new Queen(document.getElementById("queen1"), "one", Side.BLUE, 8),
-        new Queen(document.getElementById("queen2"), "two", Side.GOLD, 9)
-    ];
+    newGame();
 };

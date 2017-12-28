@@ -30,6 +30,10 @@ class Gate {
         }, 250);
     }
 
+    public destroy(): void {
+        this.element.parentNode.removeChild(this.element);
+    }
+
     public setSide(side: Side): void {
         this.side = side;
         if (this.side === Side.BLUE) {
