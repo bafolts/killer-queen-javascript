@@ -268,7 +268,18 @@ div.ball-holder.occupied {
 .snail.left.again {
     background-position: -163px -500px;
 }
-
+.snail.left.eat {
+    background-position: -1060px -500px;
+}
+.snail.left.eat2 {
+    background-position: -1210px -500px;
+}
+.snail.right.eat {
+    background-position: -1060px -200px;
+}
+.snail.right.eat2 {
+    background-position: -1210px -200px;
+}
 .goal {
     width: 10px;
     height: 100px;

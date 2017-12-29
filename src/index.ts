@@ -66,7 +66,7 @@ function newGame() {
         new Goal(document.getElementById("goal-gold"), Side.GOLD)
     );
     bears = [
-        new Bear(document.getElementById("bear1"), "one", Side.BLUE, 8),
+        new Bear(document.getElementById("bear1"), "one", Side.BLUE, 0),
         new Bear(document.getElementById("bear2"), "two", Side.GOLD, 1),
         new Bear(document.getElementById("bear3"), "three", Side.BLUE, 2),
         new Bear(document.getElementById("bear4"), "four", Side.BLUE, 3),
@@ -76,7 +76,7 @@ function newGame() {
         new Bear(document.getElementById("bear8"), "eight", Side.GOLD, 7)
     ];
     queens = [
-        new Queen(document.getElementById("queen1"), "one", Side.BLUE, 0),
+        new Queen(document.getElementById("queen1"), "one", Side.BLUE, 8),
         new Queen(document.getElementById("queen2"), "two", Side.GOLD, 9)
     ];
 }

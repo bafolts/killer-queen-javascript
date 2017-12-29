@@ -237,19 +237,22 @@ class Bear {
         function animateSnail(): void {
             if ((new Date()).getTime() - leftSnail > 2000 && snail.occupied === undefined && intersects(snail.element, self.element)) {
                 snail.occupy(self);
-            } else if (snail.occupied === self && dx !== 0) {
+            } else if (snail.eating === false && snail.occupied === self && dx !== 0) {
                 let deltaMove = dx > 0 ? 1 : -1;
                 let direction = dx > 0 ? "right" : "left";
                 snail.element.style.left = snail.element.offsetLeft + deltaMove + "px";
-                if (snail.element.className === "snail " + direction) {
-                    snail.element.className = "snail " + direction + " again";
+                if (direction === "right") {
+                    snail.setFacingRight(true);
                 } else {
-                    snail.element.className = "snail " + direction;
+                    snail.setFacingRight(false);
                 }
                 self.element.className = "bear " + self.className + " " + direction;
                 snail.checkForWin();
                 self.element.style.left = snail.element.offsetLeft + (snail.element.offsetWidth / 2) - (self.element.offsetWidth / 2) + "px";
+            } else if (snail.eating === false && snail.occupied !== undefined && snail.occupied !== self && snail.canEat(self)) {
+                snail.eat(self);
             }
+
             this.snailAnimator = setTimeout(function() {
                 self.snailAnimator = requestAnimationFrame(animateSnail);
             }, 100);

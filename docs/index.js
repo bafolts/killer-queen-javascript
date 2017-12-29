@@ -185,19 +185,22 @@ var Bear = /** @class */ (function () {
             if ((new Date()).getTime() - leftSnail > 2000 && snail.occupied === undefined && intersects(snail.element, self.element)) {
                 snail.occupy(self);
             }
-            else if (snail.occupied === self && dx !== 0) {
+            else if (snail.eating === false && snail.occupied === self && dx !== 0) {
                 var deltaMove = dx > 0 ? 1 : -1;
                 var direction = dx > 0 ? "right" : "left";
                 snail.element.style.left = snail.element.offsetLeft + deltaMove + "px";
-                if (snail.element.className === "snail " + direction) {
-                    snail.element.className = "snail " + direction + " again";
+                if (direction === "right") {
+                    snail.setFacingRight(true);
                 }
                 else {
-                    snail.element.className = "snail " + direction;
+                    snail.setFacingRight(false);
                 }
                 self.element.className = "bear " + self.className + " " + direction;
                 snail.checkForWin();
                 self.element.style.left = snail.element.offsetLeft + (snail.element.offsetWidth / 2) - (self.element.offsetWidth / 2) + "px";
+            }
+            else if (snail.eating === false && snail.occupied !== undefined && snail.occupied !== self && snail.canEat(self)) {
+                snail.eat(self);
             }
             this.snailAnimator = setTimeout(function () {
                 self.snailAnimator = requestAnimationFrame(animateSnail);
@@ -653,6 +656,8 @@ var Snail = /** @class */ (function () {
         this.element = element;
         this.goal1 = goal1;
         this.goal2 = goal2;
+        this.eating = false;
+        this.facingRight = true;
         this.checkForWin = function () {
             if (this.element.offsetLeft + this.element.offsetWidth < this.goal1.element.offsetLeft + this.goal1.element.offsetWidth) {
                 alert("BLUE WIN");
@@ -662,11 +667,47 @@ var Snail = /** @class */ (function () {
             }
         };
     }
+    Snail.prototype.setFacingRight = function (right) {
+        this.facingRight = right;
+        if (this.facingRight) {
+            if (this.element.className === "snail right") {
+                this.element.className = "snail right again";
+            }
+            else {
+                this.element.className = "snail right";
+            }
+        }
+        else {
+            if (this.element.className === "snail left") {
+                this.element.className = "snail left again";
+            }
+            else {
+                this.element.className = "snail left";
+            }
+        }
+    };
     Snail.prototype.occupy = function (bear) {
         this.occupied = bear;
     };
     Snail.prototype.unoccupy = function () {
         this.occupied = undefined;
+    };
+    Snail.prototype.canEat = function (bear) {
+        return intersects(bear.element, this.element);
+    };
+    Snail.prototype.eat = function (bear) {
+        var self = this;
+        this.eating = true;
+        var direction = this.facingRight ? "right" : "left";
+        this.element.className = "snail " + direction + " eat";
+        setTimeout(function () {
+            self.element.className = "snail " + direction + " eat2";
+            setTimeout(function () {
+                self.element.className = "snail " + direction;
+                self.eating = false;
+            }, 250);
+        }, 250);
+        bear.destroy();
     };
     return Snail;
 }());
@@ -753,7 +794,7 @@ function newGame() {
     }
     snail = new Snail(document.getElementById("snail"), new Goal(document.getElementById("goal-blue"), Side.BLUE), new Goal(document.getElementById("goal-gold"), Side.GOLD));
     bears = [
-        new Bear(document.getElementById("bear1"), "one", Side.BLUE, 8),
+        new Bear(document.getElementById("bear1"), "one", Side.BLUE, 0),
         new Bear(document.getElementById("bear2"), "two", Side.GOLD, 1),
         new Bear(document.getElementById("bear3"), "three", Side.BLUE, 2),
         new Bear(document.getElementById("bear4"), "four", Side.BLUE, 3),
@@ -763,7 +804,7 @@ function newGame() {
         new Bear(document.getElementById("bear8"), "eight", Side.GOLD, 7)
     ];
     queens = [
-        new Queen(document.getElementById("queen1"), "one", Side.BLUE, 0),
+        new Queen(document.getElementById("queen1"), "one", Side.BLUE, 8),
         new Queen(document.getElementById("queen2"), "two", Side.GOLD, 9)
     ];
 }
@@ -771,7 +812,7 @@ function populateStage(stage) {
     stage.appendChild(getElement("wall", "top:0px;left:0px;height:370px"));
     stage.appendChild(getElement("wall", "top:0px;right:0px;height:370px"));
     stage.appendChild(getElement("wall", "top;0px;width:36px;left:782px;height:185px"));
-    // Platforms -->
+    // Platforms
     stage.appendChild(getElement("platform", "width:80px;left:18px;top:167px"));
     stage.appendChild(getElement("platform", "width:80px;left:18px;top:352px"));
     stage.appendChild(getElement("platform", "width:80px;right:18px;top:167px"));
@@ -805,15 +846,15 @@ function populateStage(stage) {
     stage.appendChild(getElement("platform", "width:50px;top:722px;left:295px"));
     stage.appendChild(getElement("platform", "width:90px;right:585px;top:537px"));
     stage.appendChild(getElement("platform", "width:90px;left:585px;top:537px"));
-    // Gate -->
+    // Gate
     stage.appendChild(getElement("gate open", "top:106px;left:309px"));
     stage.appendChild(getElement("gate open", "top:106px;right:309px"));
     stage.appendChild(getElement("gate open", "top:389px;right:770px"));
     stage.appendChild(getElement("gate open", "top:569px;left:435px"));
     stage.appendChild(getElement("gate open", "top:569px;right:435px"));
-    // Snail -->
+    // Snail
     stage.appendChild(getElement("snail right", "left:750px;top:743px", "snail"));
-    // Bear -->
+    // Bear
     stage.appendChild(getElement("bear one", "left:700px;top:117px", "bear1"));
     stage.appendChild(getElement("bear two", "right:700px;top:117px", "bear2"));
     stage.appendChild(getElement("bear three", "left:710px;top:117px", "bear3"));
@@ -822,10 +863,10 @@ function populateStage(stage) {
     stage.appendChild(getElement("bear six", "right: 710px;top:117px", "bear6"));
     stage.appendChild(getElement("bear seven", "right: 720px;top:117px", "bear7"));
     stage.appendChild(getElement("bear eight", "right: 730px;top:117px", "bear8"));
-    // Queens -->
+    // Queens
     stage.appendChild(getElement("queen", "left:690px;top:104px", "queen1"));
     stage.appendChild(getElement("queen", "right:690px;top:104px", "queen2"));
-    // Balls -->
+    // Balls
     stage.appendChild(getElement("ball", "left:793px;top:706px"));
     stage.appendChild(getElement("ball", "left:776px;top:706px"));
     stage.appendChild(getElement("ball", "left:810px;top:706px"));
@@ -874,7 +915,7 @@ function populateStage(stage) {
     stage.appendChild(getElement("ball", "right:316px;top:800px"));
     stage.appendChild(getElement("ball", "right:299px;top:800px"));
     stage.appendChild(getElement("ball", "right:308px;top:784px"));
-    // Ball Holder -->
+    // Ball Holder
     stage.appendChild(getElement("ball-holder", "left:730px;top:60px"));
     stage.appendChild(getElement("ball-holder", "left:730px;top:40px"));
     stage.appendChild(getElement("ball-holder", "left:710px;top:70px"));
