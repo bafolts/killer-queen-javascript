@@ -90,9 +90,41 @@ window.addEventListener("load", function() {
                     platform.className = "platform";
                     bufferIndex += 4;
                     document.getElementById("stage").appendChild(platform);
+                } else if (message[bufferIndex] === 2) {
+                    console.log("Got a gate");
+                    let gate = document.createElement("div");
+                    gate.style.top = message[bufferIndex + 1] + "px";
+                    gate.style.left = message[bufferIndex + 2] + "px";
+
+                    console.log("SIDE IS " + message[bufferIndex + 3])
+                    gate.className = "goal " + (message[bufferIndex + 3] === 0 ? "blue" : "gold");
+                    bufferIndex += 4;
+                    document.getElementById("stage").appendChild(gate);
                 } else {
                     throw new Error("Unknown item while parsing level");
                 }
+            }
+        } else if (message[0] === 1) {
+            console.log("Got ball updates");
+            let bufferIndex = 1;
+            while (bufferIndex < message.length) {
+                let ball = document.createElement("div");
+                ball.className = "ball";
+                ball.style.top = message[bufferIndex + 1] + "px";
+                ball.style.left = message[bufferIndex + 2] + "px";
+                bufferIndex += 3;
+                document.getElementById("stage").appendChild(ball);
+            }
+        } else if (message[0] === 2) {
+            console.log("Got ball holder updates");
+            let bufferIndex = 1;
+            while (bufferIndex < message.length) {
+                let ballHolder = document.createElement("div");
+                ballHolder.className = "ball-holder";
+                ballHolder.style.top = message[bufferIndex + 1] + "px";
+                ballHolder.style.left = message[bufferIndex + 2] + "px";
+                bufferIndex += 4;
+                document.getElementById("stage").appendChild(ballHolder);
             }
         }
     });
