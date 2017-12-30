@@ -22,5 +22,8 @@
   "homepage": "https://github.com/bafolts/killer-queen-javascript#readme",
   "devDependencies": {
     "typescript": "^2.6.2"
+  },
+  "dependencies": {
+    "ws": "^3.3.3"
   }
 }
