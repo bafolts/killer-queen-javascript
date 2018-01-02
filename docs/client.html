@@ -13,7 +13,12 @@ window.addEventListener("load", function() {
     var jumping = 0;
     function sendState() {
         console.log("Sending state");
-        ws.send("0" + axis + jumping);
+        let buffer = new Uint8Array(4);
+        buffer[0] = 0;
+        buffer[1] = 0;
+        buffer[2] = axis;
+        buffer[3] = jumping;    
+        ws.send(buffer.buffer);
     }
     function setAxis(newAxis) {
         if (newAxis !== axis) {
@@ -126,6 +131,18 @@ window.addEventListener("load", function() {
                 bufferIndex += 4;
                 document.getElementById("stage").appendChild(ballHolder);
             }
+        } else if (message[0] === 3) {
+            console.log("Got bear update");
+            let id = message[1];
+            let bear = document.getElementById("bear" + id);
+            if (bear === null) {
+                bear = document.createElement("div");
+                bear.id = "bear" + id;
+                bear.className = "bear one";
+                document.getElementById("stage").appendChild(bear);
+            }
+            bear.style.left = message[3] + "px";
+            bear.style.top = message[2] + "px";
         }
     });
 });

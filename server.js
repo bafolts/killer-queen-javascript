@@ -490,6 +490,7 @@ console.log("Starting server on port " + SERVER_PORT);
 //   2 = GOAL
 // 1 = BALL
 // 2 = BALL HOLDER
+// 3 = BEAR
 function getLevel() {
     let level = new Uint16Array(1 + (walls.length * 5) + (platforms.length * 4) + (gates.length * 4));
     level[0] = 0;
@@ -518,6 +519,16 @@ function getLevel() {
     return level;
 }
 
+function getBear() {
+    let level = new Uint16Array(5);
+    level[0] = 3;
+    level[1] = 0;
+    level[2] = bears[0].top;
+    level[3] = bears[0].left;
+    level[4] = 0;
+    return level;
+}
+
 function getBall() {
     let ball = new Uint16Array(1 + (balls.length * 3));
     ball[0] = 1;
@@ -543,6 +554,29 @@ function getBallHolders() {
     return data;
 }
 
+let bears = [{
+    id: "0",
+    left: 700,
+    top: 117
+}];
+
+let bearMover;
+let lastSent;
+
+function updateBear(bearId, axis, jumping) {
+    if (axis === 2) {
+        bearMover = setInterval(function() {
+            bears[0].left += 8;
+        }, 100);
+    } else if (axis === 1) {
+        bearMover = setInterval(function() {
+            bears[0].left -= 8;
+        }, 100);
+    } else {
+        clearInterval(bearMover);
+    }
+}
+
 function getBoardState() {
     let state = new Uint16Array(4);
     state[0] = 0;
@@ -556,12 +590,30 @@ let bear = {
     left: 700,
     top: 117
 };
+
+let somethingReceived = false;
+
 wss.on('connection', function connection(ws) {
     ws.on('error', function() {
 
     });
     ws.on('message', function incoming(message) {
-        console.log('received: %s', message);
+        if (somethingReceived === false) {
+            bearUpdate = setInterval(function() {
+                let b = getBear();
+                if (lastSent === undefined ||
+                    lastSent[2] !== b[2] ||
+                    lastSent[3] !== b[3]) {
+                    ws.send(b.buffer);
+                    lastSent = b;
+                }
+            }, 100);
+            somethingReceived = true;
+        }
+        let data = new Uint8Array(message);
+        if (message[0] === 0) {
+            updateBear(message[1], message[2], message[3]);
+        } 
     });
     ws.send(getLevel().buffer);
     ws.send(getBall().buffer);
